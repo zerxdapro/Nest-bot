@@ -65,6 +65,14 @@ class Help(commands.Cog):
 
     @commands.command()
     async def help(self, ctx, command=None):
+        #TODO: allow aliases to be used for the command var
+
+        bot_cogs = self.bot.cogs.values()
+        all_commands = [x.get_commands() for x in bot_cogs]
+        all_commands = [x for x in all_commands if x]  # remove cogs where there are no commands
+        all_commands = sum(all_commands, [])  # flatten 2d array
+        aliases = [[x.name]+x.aliases for x in all_commands]
+
         if command == "public" or not command:
             if globe.check_mod(ctx):
                 moderator = True
@@ -101,6 +109,13 @@ class Help(commands.Cog):
 
             bot_member = ctx.guild.get_member(self.bot.user.id)
             embed = discord.Embed(title=f"/{command} {data['args']}", description=data["description"], colour=bot_member.colour)
+
+            aliases = [x for x in aliases if command in x]
+            # realistically aliases should always return something but i dont trust it
+            print(aliases)
+            if aliases and len(aliases[0]) != 1:
+                aliases = "**Aliases:** " + ", ".join(aliases[0])
+                embed.description = aliases + "\n" + embed.description
 
             args = data["args"].split(" ")
             if args:
