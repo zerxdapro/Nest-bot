@@ -23,9 +23,7 @@ class Pin(commands.Cog):
                 message = reaction.message
                 author = message.author
 
-                link = f"https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}/"
-
-                title = f"{author.mention} in {message.channel.mention}"
+                link = message.jump_url
 
                 embed = discord.Embed(description=message.content, colour=colour)
                 embed.set_author(name=author.display_name, icon_url=author.avatar_url, url="https://example.com")
