@@ -46,7 +46,7 @@ arg_details = {
     "user": {"input": ["User ID", "Nickname", "Username", "Ping", "Username#number"]},
     "role": {"input": ["Role ID", "Role ping", "Role name"]},
     "channel": {"input": ["Channel ID", "Channel Mention", "Channel name"]},
-    "number": {"input": ["Role ID", "Role ping", "Role name"]},
+    "number": {"input": ["A numerical value"]},
     "hexcol": {"input": ["6 digit hexadecimal value"]},
     "url": {"input": ["A url"]},
     "command": {"input": ["A bot command without the /"]},
@@ -123,8 +123,10 @@ class Help(commands.Cog):
                 except KeyError:
                     embed.add_field(name=title, value="[No entry for that argument exists]", inline=False)
 
+            if len(args) > 1:
+                embed.set_footer(text='If there are multiple arguments in a command, arguments that have spaces will '
+                                      'require quotation marks. e.g. "Quantum Cucumber"')
             await ctx.send(embed=embed)
-
 
 
 def setup(bot):
