@@ -11,6 +11,6 @@ Since its a personal bot, many things will be useless to most people and to even
 ### Requirements
 + discord.py
 + gspread
-+ oauth2client (?)
++ oauth2client
 + BeautifulSoup4
 + Pillow
