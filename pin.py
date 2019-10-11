@@ -26,7 +26,7 @@ class Pin(commands.Cog):
                 link = message.jump_url
 
                 embed = discord.Embed(description=message.content, colour=colour)
-                embed.set_author(name=author.display_name, icon_url=author.avatar_url, url="https://example.com")
+                embed.set_author(name=author.display_name, icon_url=author.avatar_url)
                 embed.add_field(name="Details", value=f"[LINK]({link})")
 
                 if message.attachments:
