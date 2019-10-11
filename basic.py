@@ -236,6 +236,8 @@ class Basic(commands.Cog):
             'author': ctx.message.author,
             'commands': commands,
             'discord': discord,
+            'guild': ctx.message.guild,
+            'globe': globe,
         }
 
         out = ""

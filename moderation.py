@@ -181,6 +181,11 @@ class Moderation(commands.Cog):
                 pass
 
         if time:
+            # user name, id, event type, time to remove
+            # so idk if this will work but we will go with it
+            event = [user.display_name, user.id, "unmute", (dt.datetime.now()+dt.timedelta(seconds=time)).isoformat()]
+            globe.pending_events.append(event)
+            # the rest of this does actually work
             await asyncio.sleep(time)
             await user.remove_roles(muted)
 

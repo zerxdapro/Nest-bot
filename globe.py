@@ -29,6 +29,9 @@ upvote = "<:upvote:625819552466468895>"
 downvote = "<:downvote:625819552177192966>"
 
 
+pending_events = []
+
+
 def check_mod(ctx):
     if isinstance(ctx, discord.Member):
         author = ctx
