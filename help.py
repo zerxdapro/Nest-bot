@@ -65,7 +65,7 @@ class Help(commands.Cog):
 
     @commands.command()
     async def help(self, ctx, command=None):
-        #TODO: allow aliases to be used for the command var
+        # TODO: allow aliases to be used for the command var
 
         bot_cogs = self.bot.cogs.values()
         all_commands = [x.get_commands() for x in bot_cogs]
@@ -112,7 +112,7 @@ class Help(commands.Cog):
 
             aliases = [x for x in aliases if command in x]
             # realistically aliases should always return something but i dont trust it
-            print(aliases)
+
             if aliases and len(aliases[0]) != 1:
                 aliases = "**Aliases:** " + ", ".join(aliases[0])
                 embed.description = aliases + "\n" + embed.description
