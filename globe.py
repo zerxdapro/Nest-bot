@@ -44,6 +44,9 @@ def check_mod(ctx):
         return False
 
 
+def check_main_serv(ctx):
+    return fserv_id == ctx.guild.id
+
 # def check_heads(ctx):
 #     role_ids = [x.id for x in ctx.author.roles]
 #     if set(role_ids) & {admin, head}:

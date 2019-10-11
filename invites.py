@@ -6,10 +6,6 @@ from collections import namedtuple
 Inv = namedtuple("Inv", "user code uses temp")
 
 
-def check_main_serv(ctx):
-    return globe.fserv_id == ctx.guild.id
-
-
 async def format_invites(guild):
     invites = await guild.invites()
     output = []
@@ -32,7 +28,7 @@ class Invites(commands.Cog):
         self.invites = await format_invites(self.guild)
 
     @commands.Cog.listener()
-    @commands.check(check_main_serv)
+    @commands.check(globe.check_main_serv)
     async def on_member_join(self, member):
         embed = discord.Embed(colour=0x66e458)
         embed.set_author(name="Member Joined", icon_url=member.avatar_url)

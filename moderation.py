@@ -10,9 +10,6 @@ import datetime as dt
 
 mute_ignore = [625112497497833514, 628560677153538088, 624784883251675137]
 
-def feemcheck(ctx):
-    return ctx.guild.id == fserv_id
-
 
 class Moderation(commands.Cog):
     def __init__(self, bot):
@@ -351,7 +348,7 @@ class Moderation(commands.Cog):
             raise error
 
     @commands.Cog.listener()
-    @commands.check(feemcheck)
+    @commands.check(globe.check_main_serv)
     async def on_message(self, ctx):
         msg = ctx.content.lower()
         try:
