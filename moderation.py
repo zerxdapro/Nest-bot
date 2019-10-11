@@ -8,6 +8,8 @@ import csv
 import datetime as dt
 
 
+mute_ignore = [625112497497833514, 628560677153538088, 624784883251675137]
+
 def feemcheck(ctx):
     return ctx.guild.id == fserv_id
 
@@ -176,7 +178,8 @@ class Moderation(commands.Cog):
 
         for channel in ctx.guild.channels:
             try:
-                await channel.set_permissions(muted, send_messages=False, add_reactions=False)
+                if channel.category.id not in mute_ignore:  # ignore mod channels
+                    await channel.set_permissions(muted, send_messages=False, add_reactions=False)
             except discord.Forbidden:
                 pass
 
