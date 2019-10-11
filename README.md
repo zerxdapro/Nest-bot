@@ -1,7 +1,15 @@
-# Python Utility Bot
+#The Nest Bot
+[![Discord](https://img.shields.io/badge/Discord-Join%20The%20Nest-7289da?style=flat&logo=discord)](https://discord.gg/https://discord.gg/56NJr7n)
 
-[![Build Status](https://dev.azure.com/python-discord/Python%20Discord/_apis/build/status/Bot%20(Mainline))](https://dev.azure.com/python-discord/Python%20Discord/_build/latest?definitionId=1)
-[![Discord](https://discordapp.com/api/guilds/267624335836053506/embed.png)](https://discord.gg/2B963hn)
+A discord bot made in discord.py primarily as a moderation tool.
 
-This project is a Discord bot specifically for use with the Python Discord server. It provides numerous utilities
-and other tools to help keep the server running like a well-oiled machine.
+Since its a personal bot, many things will be useless to most people and to even run the code provided you will need to edit a lot of files.
+
+
+
+###Requirements
++ discord.py
++ gspread
++ oauth2client (?)
++ BeautifulSoup4
++ Pillow
