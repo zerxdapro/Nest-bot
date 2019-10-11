@@ -1,0 +1,5 @@
+discord.py
+gspread
+oauth2client
+BeautifulSoup4
+Pillow
