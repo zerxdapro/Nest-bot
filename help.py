@@ -102,7 +102,6 @@ class Help(commands.Cog):
                 tcommand = [x for x in listing if x in cmd]  # get the command that is in the cmd list
                 if tcommand:  # in case no alias matches, we want to keep "command"
                     command = tcommand[0]
-                    print("found alias")
 
             try:
                 data = cmd[command]
