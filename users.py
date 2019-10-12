@@ -40,7 +40,7 @@ class Users(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        if random.randint(0, 2) == 0 or ctx.author.bot or (ctx.channel.id in blacklist and ctx.content.startswith("owo")):
+        if random.randint(0, 2) == 0 or ctx.author.bot or (ctx.channel.id in blacklist and ctx.content.lower().startswith("owo")):
             return
         user = ctx.author
         id = user.id
