@@ -204,7 +204,7 @@ class Basic(commands.Cog):
             await ctx.add_reaction(globe.upvote)
             await ctx.add_reaction(globe.downvote)
 
-    @commands.command()
+    @commands.command(aliases=["rl"])
     @commands.is_owner()
     async def reload(self, ctx, arg):
         self.bot.reload_extension(arg)
