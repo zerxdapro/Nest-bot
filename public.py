@@ -23,7 +23,7 @@ class Public(commands.Cog):
         embed.add_field(name="Account Creation Date", value=member.created_at.strftime('%d %b %Y'), inline=False)
         embed.add_field(name="Last Server Join Date", value=member.joined_at.strftime('%d %b %Y'), inline=False)
         roles = ""
-        for i in member.roles[1:]:
+        for i in list(reversed(member.roles[1:])):
             roles += i.mention + " "
         if roles == "":
             roles = "None"
