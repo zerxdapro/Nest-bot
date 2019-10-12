@@ -72,7 +72,7 @@ class Help(commands.Cog):
         all_commands = sum(all_commands, [])  # flatten 2d array
         aliases = [[x.name]+x.aliases for x in all_commands]
 
-        if command == "public" or not command:
+        if command == "public" or not command:  # full help message
             if globe.check_mod(ctx):
                 moderator = True
             else:
@@ -95,7 +95,8 @@ class Help(commands.Cog):
                 embed.add_field(name=f"{p}{name} {c_args}", value=desc, inline=False)
 
             await ctx.send(embed=embed)
-        else:
+
+        else:  # help message for certain command
             listing = [x for x in aliases if command in x]  # get aliases list for command
             if listing:  # listing should never be empty but just in case
                 listing = listing[0]  # i <3 generators
@@ -123,9 +124,11 @@ class Help(commands.Cog):
                 aliases = "**Aliases:** " + ", ".join(aliases[0])
                 embed.description = aliases + "\n" + embed.description
 
-            args = data["args"].split(" ")
-            if args:
+            if data["args"]:
                 embed.description += "\n\n__**Arguments**__"
+                args = data["args"].split(" ")
+            else:
+                args = []
             for i in args:
                 raw = i
                 i = i[1:-1]
