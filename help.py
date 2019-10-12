@@ -65,7 +65,6 @@ class Help(commands.Cog):
 
     @commands.command()
     async def help(self, ctx, command=None):
-        # TODO: allow aliases to be used for the command var
 
         bot_cogs = self.bot.cogs.values()
         all_commands = [x.get_commands() for x in bot_cogs]
@@ -97,6 +96,14 @@ class Help(commands.Cog):
 
             await ctx.send(embed=embed)
         else:
+            listing = [x for x in aliases if command in x]  # get aliases list for command
+            if listing:  # listing should never be empty but just in case
+                listing = listing[0]  # i <3 generators
+                tcommand = [x for x in listing if x in cmd]  # get the command that is in the cmd list
+                if tcommand:  # in case no alias matches, we want to keep "command"
+                    command = tcommand[0]
+                    print("found alias")
+
             try:
                 data = cmd[command]
             except KeyError:
