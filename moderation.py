@@ -120,6 +120,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.check(check_mod)
     async def mute(self, ctx, user: discord.Member, *, time_and_reason=""):
+        if user.id == ctx.author.id:
+            await ctx.send(f"{globe.errorx}  You can't mute yourself")
+            return
         dm = True
 
         match = r"(([0-9]+) ?(hours?|hrs?|minutes?|mins?|m\b|h\b)? ?)?(.*)?"
