@@ -195,7 +195,6 @@ class Users(commands.Cog):
 
         await ctx.send(output)
 
-
     @commands.command()
     async def refreshlevels(self, ctx):
         server = self.bot.get_guild(globe.fserv_id)
