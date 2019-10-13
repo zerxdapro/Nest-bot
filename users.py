@@ -95,6 +95,17 @@ class Users(commands.Cog):
         bar = make_bar(fetch[0], level_to_xp(fetch[1]), 15)
         embed.add_field(name="XP", value=bar + f" {fetch[0]}/{level_to_xp(fetch[1])}")
 
+        query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
+        query = query.fetchall()
+        index = None
+        for i in range(len(query)):
+            if query[i][0] == ctx.author.id:
+                index = i + 1
+                break
+
+        members = [x for x in ctx.guild.members if not x.bot]
+        embed.add_field(name="Position on server leaderboard", value=f"{index}/{len(members)}")
+
         await ctx.send(embed=embed)
 
     @level.error
