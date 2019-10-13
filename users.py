@@ -6,16 +6,14 @@ import datetime as dt
 import random
 from copy import deepcopy
 
-
 blacklist = [624785558102605824, 627985907013910538]
-
 
 exponent = (1893.0 / 4500.0)
 coef = 0.31
 
 
 def xp_to_level(xp):
-    return int(coef*xp ** exponent)
+    return int(coef * xp ** exponent)
 
 
 def root(base, value):
@@ -23,7 +21,7 @@ def root(base, value):
 
 
 def level_to_xp(level):
-    return int(root(exponent, level/coef))
+    return int(root(exponent, level / coef))
 
 
 def make_bar(num, den, size):
@@ -40,7 +38,8 @@ class Users(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
-        if random.randint(0, 2) == 0 or ctx.author.bot or (ctx.channel.id in blacklist and ctx.content.lower().startswith("owo")):
+        if random.randint(0, 2) == 0 or ctx.author.bot or (
+                ctx.channel.id in blacklist and ctx.content.lower().startswith("owo")):
             return
         user = ctx.author
         id = user.id
@@ -99,7 +98,7 @@ class Users(commands.Cog):
         query = query.fetchall()
         index = None
         for i in range(len(query)):
-            if query[i][0] == ctx.author.id:
+            if query[i][0] == member.id:
                 index = i + 1
                 break
 
@@ -123,31 +122,79 @@ class Users(commands.Cog):
         output = "```md\n"
         name = ctx.guild.name
         output += name + "\n"
-        output += "="*len(name) + "\n\n"
+        output += "=" * len(name) + "\n\n"
         for i in range(len(fetch)):
             current = fetch[i]
             user = ctx.guild.get_member(current[0])
             if user:
-                output += f"{i+1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
+                output += f"{i + 1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
             else:
-                output += f"{i+1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
+                output += f"{i + 1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
 
         query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
         query = query.fetchall()
         index = None
         for i in range(len(query)):
             if query[i][0] == author:
-                index = i+1
+                index = i + 1
                 break
         if index:
             output += "\n\nYour Position:"
-            output += f"\n{index}. You < Level {query[index-1][2]} {query[index-1][1]} xp >"
+            output += f"\n{index}. You < Level {query[index - 1][2]} {query[index - 1][1]} xp >"
         else:
             output += "\n\nYou don't have a position on the leaderbord yet"
 
         output += "\n```"
 
         await ctx.send(output)
+
+    @commands.command(aliases=["pos"])
+    async def position(self, ctx, target: discord.Member = None):
+        if not target:
+            target = ctx.author
+
+        query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC")
+        query = query.fetchall()
+
+        # get position of user
+        index = None
+        for i in range(len(query)):
+            if query[i][0] == target.id:
+                index = i + 1
+                break
+
+        # get range to list
+        index -= 1  # indexes start at 0 ammirite
+        start = index - 5
+        end = index + 4
+
+        # crop range to size of array
+        if start < 0:
+            start = 0
+            end = 10
+        if end >= len(query):
+            end = len(query)-1
+
+        cropped = query[start:end]
+
+        output = "```md\n"
+        name = ctx.guild.name
+        output += name + "\n"
+        output += "=" * len(name) + "\n\n"
+        for i in range(len(cropped)):
+            current = cropped[i]
+            user = ctx.guild.get_member(current[0])
+            if user:
+                if user.id == target.id:
+                    output += f"{i + 1 + start}. YOU < Level {current[2]} {current[1]} xp >\n"
+                else:
+                    output += f"{i + 1 + start}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
+            else:
+                output += f"{i + 1 + start}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
+        output += "```"
+
+        await ctx.send(output)
+
 
     @commands.command()
     async def refreshlevels(self, ctx):
