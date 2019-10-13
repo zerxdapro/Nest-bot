@@ -13,6 +13,8 @@ cmd = {
     "server": {"description": "Show information on the current server", "args": "", "mod": False},
     "level": {"description": "See someones current level and xp. If you dont specify a user, it will default to you", "args": "{user}", "mod": False},
     "top": {"description": "See the top 10 people on the server leaderboard of activity levels", "args": "", "mod": False},
+    "position": {"description": "Shows a version of leaderboard but centered around you. If a user is named it will "
+                                "show the leaderboard on them", "args": "{user}", "mod":False},
     "announce": {"description": "Sends [message] in [channel] (can be #channel or the channel ID",
                  "args": "[channel] [message]", "mod": True},
     "addrole": {"description": "Add [role] to [user]", "args": "[user] [role]", "mod": True},
