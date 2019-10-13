@@ -121,7 +121,7 @@ class Moderation(commands.Cog):
     @commands.check(check_mod)
     async def mute(self, ctx, user: discord.Member, *, time_and_reason=""):
         if user.id == ctx.author.id:
-            await ctx.send(f"{globe.errorx}  You can't mute yourself")
+            await ctx.send(f"{globe.errorx} You can't mute yourself")
             return
         dm = True
 
@@ -355,7 +355,7 @@ class Moderation(commands.Cog):
     async def on_message(self, ctx):
         msg = ctx.content.lower()
         try:
-            if globe.check_no_t(ctx) or ctx.author.bot:
+            if ctx.author.bot:
                 return
         except AttributeError:
             pass
