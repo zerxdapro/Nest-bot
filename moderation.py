@@ -281,8 +281,7 @@ class Moderation(commands.Cog):
                 await confirmation.add_reaction("👍")
 
                 def check(reaction, user):
-                    return (
-                               not self.bot.user == user) and reaction.emoji == "👍" and reaction.message.id == confirmation.id
+                    return (not self.bot.user == user) and reaction.emoji == "👍" and reaction.message.id == confirmation.id
 
                 try:
                     reaction, user = await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
