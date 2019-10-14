@@ -178,7 +178,7 @@ class Moderation(commands.Cog):
 
         for channel in ctx.guild.channels:
             try:
-                if channel.category.id not in mute_ignore:  # ignore mod channels
+                if channel.category_id not in mute_ignore:  # ignore mod channels
                     await channel.set_permissions(muted, send_messages=False, add_reactions=False)
             except discord.Forbidden:
                 pass
@@ -354,44 +354,30 @@ class Moderation(commands.Cog):
     @commands.check(globe.check_main_serv)
     async def on_message(self, ctx):
         msg = ctx.content.lower()
-        try:
+        try:  # ngl dont know why this is here
             if ctx.author.bot:
                 return
         except AttributeError:
             pass
-        # if re.search(r"\bnigger\b", msg):
-        #     server = self.bot.get_guild(fserv_id)
-        #     channel = server.get_channel(cmd_id)
-        #     try:
-        #         await ctx.author.send(
-        #             "You have been auto-banned from the r/feemagers discord server for saying the n word")
-        #     except discord.Forbidden:
-        #         pass
-        #     await ctx.author.ban(reason="Autoban- 'Nigger'")
-        #     title = f"**Autobanned user {ctx.author.mention} ({ctx.author.id}) for saying the n word**\n"
-        #     embed = discord.Embed(description=title + msg, colour=0xFF0000)
-        #     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-        #     embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
-        #     await channel.send(embed=embed)
-        #     try:
-        #         await ctx.delete()
-        #     except discord.NotFound:
-        #         pass
 
-        if re.search(r"\b(fag|faggot|fags|nigger|niggers)\b", msg) and not ctx.author.bot:
+        # unfortunetely this regex is dummy thicc but i think its as tiny as i can get it :/
+        inv = r"(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5}|[a-zA-Z0-9]{7}"
+        blacklist = r"\b(fag(got)?s?|niggers?|retard(ed|s)?)\b"
+
+        if re.search(blacklist, msg) and not ctx.author.bot:
             await ctx.delete()
             server = self.bot.get_guild(fserv_id)
             channel = server.get_channel(cmd_id)
-            title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id})**\n"
+            title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
             embed = discord.Embed(description=title + msg, colour=0xFF0000)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
             await channel.send(embed=embed)
-        elif re.search(r"\bretard(ed|s)?\b", msg) and not ctx.author.bot:
-            await ctx.delete()
+
+        elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8
             server = self.bot.get_guild(fserv_id)
             channel = server.get_channel(cmd_id)
-            title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id})**\n"
+            title = f"**Discord server link posted by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
             embed = discord.Embed(description=title + msg, colour=0xFF0000)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))

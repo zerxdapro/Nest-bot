@@ -148,7 +148,7 @@ class Users(commands.Cog):
 
         await ctx.send(output)
 
-    @commands.command(aliases=["pos"])
+    @commands.command(aliases=["pos", "me"])
     async def position(self, ctx, target: discord.Member = None):
         if not target:
             target = ctx.author
