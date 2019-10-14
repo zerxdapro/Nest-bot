@@ -360,7 +360,7 @@ class Moderation(commands.Cog):
             pass
 
         # unfortunetely this regex is dummy thicc but i think its as tiny as i can get it :/
-        inv = r"(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5}|[a-zA-Z0-9]{7}"
+        inv = r"\b(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5}|[a-zA-Z0-9]{7})\b"
         blacklist = r"\b(fag(got)?s?|niggers?|retard(ed|s)?)\b"
 
         if re.search(blacklist, msg) and not ctx.author.bot:
