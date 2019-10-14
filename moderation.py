@@ -371,6 +371,7 @@ class Moderation(commands.Cog):
             embed = discord.Embed(description=title + msg, colour=0xFF0000)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
+            embed.add_field(name="Link:", value=f"([Click]{ctx.jump_url})")
             await channel.send(embed=embed)
 
         elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8
@@ -380,6 +381,7 @@ class Moderation(commands.Cog):
             embed = discord.Embed(description=title + msg, colour=0xFF0000)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
+            embed.add_field(name="Link:", value=f"([Click]{ctx.jump_url})")
             await channel.send(embed=embed)
 
 
