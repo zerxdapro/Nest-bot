@@ -9,6 +9,7 @@ import datetime as dt
 
 
 mute_ignore = [625112497497833514, 628560677153538088, 624784883251675137]
+server_whitelist = [globe.fserv_id, 571462276930863117]
 
 
 class Moderation(commands.Cog):
@@ -360,7 +361,7 @@ class Moderation(commands.Cog):
             pass
 
         # unfortunetely this regex is dummy thicc but i think its as tiny as i can get it :/
-        inv = r"\b(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5}|[a-zA-Z0-9]{7})\b"
+        inv = r"\b(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5,7})\b"
         blacklist = r"\b(fag(got)?s?|niggers?|retard(ed|s)?)\b"
 
         if re.search(blacklist, msg) and not ctx.author.bot:
@@ -373,15 +374,36 @@ class Moderation(commands.Cog):
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
             await channel.send(embed=embed)
 
-        elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8
-            server = self.bot.get_guild(fserv_id)
-            channel = server.get_channel(cmd_id)
-            title = f"**Discord server link posted by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
-            embed = discord.Embed(description=title + msg, colour=0xFF0000)
-            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-            embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
-            embed.add_field(name="Link:", value=f"[Click]({ctx.jump_url})")
-            await channel.send(embed=embed)
+        elif re.search(inv, msg): # and not check_mod(ctx):  # enforce rule 8
+            search = re.search(inv, ctx.content, re.IGNORECASE)
+            invite = search.group(0)
+            try:
+                invite = await self.bot.fetch_invite(invite)
+                inv_id = invite.guild.id
+
+                rule_34 = "https://discordapp.com/channels/624784883251675136/624784883251675138/625251053713096704"
+
+                if inv_id in server_whitelist:  # dont delete nest and team
+                    return
+
+                server = self.bot.get_guild(fserv_id)
+
+                channel = server.get_channel(cmd_id)
+                title = f"**Discord server link posted by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
+                embed = discord.Embed(description=title + msg, colour=0xFF0000)
+                embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+                embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
+                await channel.send(embed=embed)
+
+                await ctx.delete()
+
+                desc = f"[Please observe rule 8]({rule_34})"
+                embed = discord.Embed(description=desc, color=0xff0000)
+                await ctx.channel.send(str(ctx.author.mention), embed=embed, delete_after=8)
+
+            except discord.NotFound:
+                # if it cant find the invite just ignore it since there is no issue as it likely doesnt exist
+                pass
 
 
 def setup(bot):
