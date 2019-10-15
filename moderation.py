@@ -374,7 +374,7 @@ class Moderation(commands.Cog):
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
             await channel.send(embed=embed)
 
-        elif re.search(inv, msg): # and not check_mod(ctx):  # enforce rule 8
+        elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8
             search = re.search(inv, ctx.content, re.IGNORECASE)
             invite = search.group(0)
             try:
