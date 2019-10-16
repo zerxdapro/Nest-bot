@@ -9,6 +9,7 @@ cmd = {
     "whois": {"description": "Show information on a user (defaults to you)", "args": "{user}", "mod": False},
     "tzsearch": {"description": "Displays a list of time zones based on your search", "args": "[timezone]", "mod": False},
     "timein": {"description": "Gets the current time for the given time zone", "args": "[timezone]", "mod": False},
+    "info": {"description": "Shows information on the bot", "args": "", "mod": False},
     "pfp": {"description": "Display your profile picture. If {user} is provided, it will display their profile picture", "args": "{user}", "mod": False},
     "yt": {"description": "Shows a youtube video's name, channel and thumbnail."
                           "Sometimes discord doesnt show the embed properly so you can use this", "args": "[url]", "mod": False},

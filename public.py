@@ -151,6 +151,18 @@ class Public(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f"{globe.errorx} You didn't provide a timezone")
 
+    @commands.command(aliases=["bot", "botinfo"])
+    async def info(self, ctx):
+        bot = ctx.guild.get_member(self.bot.user.id)
+        qc = await self.bot.fetch_user(self.bot.owner_id)  # if you clone this for some damn reason you better fix this
+        embed = discord.Embed(colour=bot.colour)
+        embed.set_author(name=self.bot.user.name, icon_url=self.bot.user.avatar_url)
+        embed.add_field(name="Library", value="discord.py")
+        embed.add_field(name="Code", value="[Github Repository](https://github.com/Quantum-Cucumber/nest-bot/)")
+        embed.add_field(name="Creator", value=qc)
+
+        await ctx.send(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Public(bot))
