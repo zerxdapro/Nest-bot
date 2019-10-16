@@ -7,6 +7,8 @@ cmd = {
     "colour": {"description": "Display an image of that hex colour", "args": "[hexcol]", "mod": False},
     "testcol": {"description": "Simulate what it would be like if your username was #[hexcol]", "args": "[hexcol]", "mod": False},
     "whois": {"description": "Show information on a user (defaults to you)", "args": "{user}", "mod": False},
+    "tzsearch": {"description": "Displays a list of time zones based on your search", "args": "[timezone]", "mod": False},
+    "timein": {"description": "Gets the current time for the given time zone", "args": "[timezone]", "mod": False},
     "pfp": {"description": "Display your profile picture. If {user} is provided, it will display their profile picture", "args": "{user}", "mod": False},
     "yt": {"description": "Shows a youtube video's name, channel and thumbnail."
                           "Sometimes discord doesnt show the embed properly so you can use this", "args": "[url]", "mod": False},
@@ -57,7 +59,8 @@ arg_details = {
     "description": {"input": ["Any text"]},
     "snippet": {"input": ["A portion of the warning"]},
     "reason": {"input": ["The reason for the punishment"]},
-    "message": {"input": ["The message to send"]}
+    "message": {"input": ["The message to send"]},
+    "timezone": {"input": ["A timezone, typically in the format Country/City"]}
 }
 
 

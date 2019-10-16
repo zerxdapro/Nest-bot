@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import globe
+import pytz
+import datetime as dt
 
 
 class Public(commands.Cog):
@@ -99,12 +101,55 @@ class Public(commands.Cog):
         channel = a.text
         channel_link = "https://youtube.com" + a.attrs["href"]
 
-
         embed = discord.Embed(title=title, url=url, color=0xff0000)
         embed.set_author(name=channel, url=channel_link)
         embed.set_thumbnail(url=f"https://img.youtube.com/vi/{id}/hqdefault.jpg")
 
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["timezone", "tz", "tzs", "searchtz"])
+    async def tzsearch(self, ctx, search):
+        tzs = pytz.all_timezones
+        output = [x for x in tzs if search.lower() in x.lower()]
+
+        if output:
+            footer = ""
+            if len(output) > 30:
+                output = output[:30]
+                footer = "\n\n-- Cropped list --"
+            header = f"**🌐 Timezones for `{search}`:**\n"
+            output = "\n".join(output)
+
+            await ctx.send(header + output + footer)
+        else:
+            await ctx.send(f"{globe.errorx} No timezones were found for that location")
+
+    @tzsearch.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"{globe.errorx} You didn't provide a timezone")
+
+    @commands.command()
+    async def timein(self, ctx, tz):
+        tz = [x for x in pytz.all_timezones if x.lower() == tz.lower()]
+
+        if tz:
+            tz = tz[0]
+            zone = pytz.timezone(tz)
+        else:
+            await ctx.send(f"{globe.errorx} That timezone isn't available")
+            return
+
+        time = dt.datetime.now(zone)
+
+        time = time.strftime("%-I:%M%P on %A, %-d %b")
+
+        await ctx.send(f"🌐 {time} in `{tz}`")
+
+    @timein.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"{globe.errorx} You didn't provide a timezone")
 
 
 def setup(bot):
