@@ -50,3 +50,14 @@ def make_welcome(background, user):
     draw = draw_text(y, font, text, draw, width)
 
     bg.save("image.png")
+
+
+def mask_circle_transparent(pil_img, offset=0):
+    mask = Image.new("L", pil_img.size, 0)
+    draw = ImageDraw.Draw(mask)
+    draw.ellipse((offset, offset, pil_img.size[0] - offset, pil_img.size[1] - offset), fill=255)
+
+    result = pil_img.copy()
+    result.putalpha(mask)
+
+    return result
