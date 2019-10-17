@@ -4,6 +4,10 @@ from globe import fserv_id
 import globe
 import gs_handler as gsh
 from datetime import datetime as dt
+import asyncio
+
+
+role_timer = 10
 
 
 class Members(commands.Cog):
@@ -16,6 +20,30 @@ class Members(commands.Cog):
         status = f"{count} members!"
         await self.bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
         gsh.append_row([dt.now().strftime("%d/%m/%Y %H:%M:%S"), count])
+
+        # welcome messages
+
+        msg = "Hey there! Welcome to The Nest :). To keep this server safe, you will need wait ten minutes until you " \
+              "get full access to all the channels. While you wait,{} tell us about " \
+              "yourself!! We can't wait to meet you <3"
+        try:
+            await member.send(msg.format(""))
+        except discord.Forbidden:  # if not allowed to dm
+            server = self.bot.get_guild(globe.fserv_id)
+            channel = server.get_channel(globe.intro_id)
+            await channel.send(str(member.mention) + " " + msg.format(" head on over to #introductions and"))
+
+        role = globe.member_role
+        server = self.bot.get_guild(globe.fserv_id)
+        role = server.get_role(role)
+
+        await asyncio.sleep(role_timer)
+        await member.add_roles(role)
+
+        try:
+            await member.send("You have been given the regular role and can now see all of the channels!! Have fun")
+        except (discord.HTTPException, discord.Forbidden):
+            pass
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

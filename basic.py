@@ -128,25 +128,11 @@ class Basic(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        # msg = f"Hey! Welcome to the feemagers discord server {member.display_name}. You have access to the
-        # introductions channel, so why don't you tell us a bit about yourself over there? The other channels will be
-        # unlocked for you in 15 minutes - this is to reduce spam/raiders. We can't wait to meet you!" msg_pub =
-        # f"Hey! Welcome to the feemagers discord server {member.mention}. You have access to this channel currently,
-        # so tell us a bit about yourself if you'd like. The other channels will be unlocked for you in 15 minutes -
-        # this is to reduce spam/raiders. We can't wait to meet you!" try: await member.send(msg) except
-        # discord.Forbidden: server = self.bot.get_guild(globe.fserv_id) channel = server.get_channel(globe.intro_id)
-        # await channel.send(msg_pub)
         if member.guild.id != globe.fserv_id:
             return
         cnl = member.guild.get_channel(globe.welcome_id)
         image_handler.make_welcome("welcome", member)
         await cnl.send(str(member.mention), file=discord.File("image.png"))
-        # await asyncio.sleep(15 * 60)
-        # try:
-        #     await member.add_roles(member.guild.get_role(globe.reg_id))
-        #     await member.send("You have been given the regular role and can now see all of the channels!")
-        # except (discord.HTTPException, discord.Forbidden):
-        #     pass
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -368,7 +354,7 @@ class Basic(commands.Cog):
         else:
             await ctx.send(f"{globe.errorx} That input is not a hexadecimal colour")
 
-    @commands.command()
+    @commands.command(aliases=["coltest", "colourtest", "role", "testcolour"])
     async def testcol(self, ctx, hexcol):
         rex = re.match(r"#([0-9a-f]{6})", hexcol, re.IGNORECASE)
         if rex:
