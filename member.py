@@ -7,7 +7,7 @@ from datetime import datetime as dt
 import asyncio
 
 
-role_timer = 10
+role_timer = 10*60
 
 
 class Members(commands.Cog):
