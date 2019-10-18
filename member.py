@@ -27,11 +27,11 @@ class Members(commands.Cog):
               "get full access to all the channels. While you wait,{} tell us about " \
               "yourself!! We can't wait to meet you <3"
         try:
-            await member.send(msg.format(""))
+            await member.send(msg.format(" head on over to the #introductions channels and"))
         except discord.Forbidden:  # if not allowed to dm
             server = self.bot.get_guild(globe.fserv_id)
             channel = server.get_channel(globe.intro_id)
-            await channel.send(str(member.mention) + " " + msg.format(" head on over to #introductions and"))
+            await channel.send(str(member.mention) + " " + msg.format(""))
 
         role = globe.member_role
         server = self.bot.get_guild(globe.fserv_id)
