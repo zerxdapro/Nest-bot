@@ -171,7 +171,10 @@ class Moderation(commands.Cog):
             muted = [x for x in ctx.guild.roles if x.name == "Muted"]
             muted = muted[0]
 
-        await user.add_roles(muted)
+        try:
+            await user.add_roles(muted)
+        except discord.Forbidden:
+            await ctx.send(f"{globe.errorx} I am not able to add the muted role")
 
         if not dm:
             output += "\n`[User was not messaged]`"
