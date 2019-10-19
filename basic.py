@@ -45,7 +45,6 @@ react_roles = [
     {"ID": 632753058190852096, "roles": {"🏳️‍🌈": 632752022411673600}}
 ]
 
-
 """
 async def timer_loop(time, message, caller):
     embed = message.embeds[0]
@@ -161,6 +160,8 @@ class Basic(commands.Cog):
             await ctx.send(f"{globe.errorx} {error.args[0]}")
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send(f"{globe.errorx} I'm not allowed to send messages there")
+        else:
+            raise error
 
     @commands.command()
     @commands.check(globe.check_mod)
@@ -196,27 +197,26 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=["rl"])
     @commands.is_owner()
-    async def reload(self, ctx, arg):
-        self.bot.reload_extension(arg)
+    async def reload(self, ctx, cog):
+        """
+        Reloads a cog and updates changes to it
+        """
+        try:
+            self.bot.reload_extension(cog)
+        except Exception as error:
+            await ctx.send(f"{globe.errorx} `{error}`")
+
         if arg == "invites":
             await self.bot.get_cog("Invites").setup()
-        print(f"---------- RELOADED COG '{arg}' ----------")
+        print(f"---------- RELOADED COG '{cog}' ----------")
         await ctx.send("✅")
-
-    # @reload.error
-    # async def do_repeat_handler(self, ctx, error):
-    #     if isinstance(error, commands.ExtensionNotLoaded):
-    #         await ctx.send(f"{globe.errorx} That cog isn't loaded")
-    #     elif isinstance(error, commands.ExtensionNotFound):
-    #         await ctx.send(f"{globe.errorx} That cog doesn't exist")
-    #     elif isinstance(error, commands.ExtensionFailed):
-    #         await ctx.send(f"{globe.errorx} An error occured while loading that cog")
-    #     else:
-    #         raise error
 
     @commands.command(aliases=["exec", "code", "eval"])
     @commands.is_owner()
-    async def run(self, ctx, *, command):
+    async def run(self, ctx, *, code):
+        """
+        Runs eval() on python code
+        """
         env = {
             'bot': self.bot,
             'ctx': ctx,
@@ -230,39 +230,44 @@ class Basic(commands.Cog):
             'globe': globe,
         }
 
-        out = ""
-        for i in command.split("\n"):
-            out += ">>> " + i + "\n"
+        out = ">>> " + code + "\n"
         output = "```python\n{}\n{}```".format(out, "{}")
 
         env.update(globals())
 
         try:
-            result = eval(command, env)
+            result = eval(code, env)
             if inspect.isawaitable(result):
                 result = await result
         except Exception as e:
             await ctx.send(type(e).__name__ + ': ' + str(e))
             return
+
         if len(output.format(result)) > 2000:
-            await ctx.send(f"{globe.errorx} The output could not be sent- too long?")
-            return
-        await ctx.send(output.format(result))
+            await ctx.send(f"{globe.errorx} The output is too long?")
+        else:
+            await ctx.send(output.format(result))
 
     @run.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, discord.HTTPException):
-            await ctx.send(f"{globe.errorx} The output could not be sent- too long?")
+            await ctx.send(f"{globe.errorx} The output is too long?")
 
     @commands.command()
     @commands.is_owner()
     async def add_cog(self, ctx, name):
-        self.bot.extension(name)
+        """
+        Install a cog into the bot (idk if it works)
+        """
+        self.bot.load_extension(name)
         print(f"---------- ADDED COG '{name}' ----------")
         await ctx.send("✅")
 
     @commands.command()
     async def poll(self, ctx, question, *answers):
+        """
+        QOTD poll
+        """
         if ctx.channel.id == globe.qotd_id:
             embed = discord.Embed(colour=ctx.guild.get_member(self.bot.user.id).colour)
             body = ""
@@ -298,9 +303,10 @@ class Basic(commands.Cog):
                         return
                     else:
                         await message.remove_reaction(emoji, member)
+
         elif str(payload.emoji) == "📊" and payload.channel_id == globe.qotd_id:
             message_id = payload.message_id
-            server = self.bot.get_guild(globe.fserv_id)
+            server = self.bot.get_guild(globe.serv_id)
             channel = server.get_channel(globe.qotd_id)
             message = await channel.fetch_message(message_id)
             author = server.get_member(payload.user_id)
@@ -326,9 +332,10 @@ class Basic(commands.Cog):
                 else:
                     await author.send("❗ That poll has already been finished")
             await message.remove_reaction("📊", author)
+
         elif payload.channel_id == globe.qotd_id and not payload.user_id == self.bot.user.id:  # only 1 reaction for poll
             message_id = payload.message_id
-            server = self.bot.get_guild(globe.fserv_id)
+            server = self.bot.get_guild(globe.serv_id)
             channel = server.get_channel(globe.qotd_id)
             message = await channel.fetch_message(message_id)
 
@@ -341,10 +348,11 @@ class Basic(commands.Cog):
                 users = [x.id for x in await i.users().flatten()]
                 if payload.user_id in users:
                     user_reacts.append(i.emoji)
-            # print(payload.emoji)
-            # print(user_reacts)
+
             if not user_reacts:
-                print("Poll reaction: no reaction added")
+                # this shouldn't occur but i don't trust my code
+                # > reaction added  > no reaction added   yeah.. .. . .
+                print("Poll reaction: no reaction added???")
             elif not len(user_reacts) == [payload.emoji]:  # more than one emote since more than one instance
                 user = server.get_member(payload.user_id)
                 try:
@@ -358,6 +366,9 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=["color"])
     async def colour(self, ctx, hexcol):
+        """
+        Show an image of the given colour
+        """
         rex = re.match(r"#([0-9a-f]{6})", hexcol, re.IGNORECASE)
         if rex:
             await ctx.trigger_typing()
@@ -369,6 +380,9 @@ class Basic(commands.Cog):
 
     @commands.command(aliases=["coltest", "colourtest", "role", "testcolour"])
     async def testcol(self, ctx, hexcol):
+        """
+        Creates an image showing what it would look like if your role was that colour
+        """
         rex = re.match(r"#([0-9a-f]{6})", hexcol, re.IGNORECASE)
         if rex:
             await ctx.trigger_typing()
@@ -397,6 +411,7 @@ class Basic(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
+        # remove react role
         id = payload.message_id
         user = payload.user_id
         guild = payload.guild_id
