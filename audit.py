@@ -40,15 +40,6 @@ class Logging(commands.Cog):
         channel = server.get_channel(globe.audit_id)
         await channel.send(embed=embed)
     
-    # @commands.Cog.listener()
-    # async def on_bulk_message_delete(self, messages):
-    #     if not messages[0].guild.id == globe.fserv_id:
-    #         return
-    #     embed = discord.Embed(colour=0xe45858, description=f"**{len(messages)} messages were deleted in {messages[0].channel.mention}**")
-    #     server = self.bot.get_guild(globe.fserv_id)
-    #     channel = server.get_channel(globe.audit_id)
-    #     await channel.send(embed=embed)
-    
     @commands.Cog.listener()
     @commands.check(globe.check_main_serv)
     async def on_member_update(self, old, new):
