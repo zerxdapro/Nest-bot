@@ -18,7 +18,7 @@ async def on_ready():
     print("-"*len(startup))
 
     # Set activity for member count
-    count = len([x for x in bot.get_guild(globe.fserv_id).members if not x.bot])
+    count = len([x for x in bot.get_guild(globe.serv_id).members if not x.bot])
     status = f"{count} members!"
     await bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
 

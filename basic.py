@@ -8,11 +8,12 @@ import datetime as dt
 import requests
 import image_handler
 import csv
-from threading import enumerate as threadlist
 from PIL import Image, ImageFont, ImageDraw
 from image_handler import mask_circle_transparent
 
-num_emoji = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷", "🇸", "🇹", "🇺", "🇻", "🇼", "🇽", "🇾", "🇿"]
+#  :zero: :one: :two: etc
+num_emoji = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷",
+             "🇸", "🇹", "🇺", "🇻", "🇼", "🇽", "🇾", "🇿"]
 
 react_roles = [
     {"ID": 626340756315045899, "roles": {"❔": 626340292811030542}},
@@ -41,143 +42,155 @@ react_roles = [
         "🏰": 627979557189713931,
         "🇺🇸": 631748587143036929
     }},
-    {"ID":632753058190852096, "roles": {"🏳️‍🌈": 632752022411673600}}
+    {"ID": 632753058190852096, "roles": {"🏳️‍🌈": 632752022411673600}}
 ]
 
 
-# async def timer_loop(time, message, caller):
-#     embed = message.embeds[0]
-#     loops = int(time / 60)
-#     if time % 60:
-#         loops += 1
-#     for i in range(loops):
-#         # print(time)
-#         await asyncio.sleep(60)
-#         time -= 60
-#         if time > 0:
-#             delta = dt.timedelta(seconds=time)
-#             desc = f"{delta.days} days, {delta.seconds // 3600 % 24} hours, {delta.seconds // 60 % 60} minutes remaining"
-#             if desc == "0 days, 0 hours, 0 minutes remaining":
-#                 desc = "<1 minute remaining"
-#             new_embed = discord.Embed(title=embed.title, colour=embed.colour, description=desc)
-#             try:
-#                 await message.edit(embed=new_embed)
-#             except (discord.NotFound, discord.HTTPException):
-#                 await caller.send(f"Your `{embed.title[2:-6]}` timer got deleted")
-#                 return
-#         else:
-#             new_embed = discord.Embed(title=embed.title, colour=embed.colour, description="Timer is up!")
-#             try:
-#                 await message.edit(embed=new_embed)
-#             except (discord.NotFound, discord.HTTPException):
-#                 pass
-#             await caller.send(f"Your `{embed.title[2:-6]}` timer is finished!")
-#             return
+"""
+async def timer_loop(time, message, caller):
+    embed = message.embeds[0]
+    loops = int(time / 60)
+    if time % 60:
+        loops += 1
+    for i in range(loops):
+        # print(time)
+        await asyncio.sleep(60)
+        time -= 60
+        if time > 0:
+            delta = dt.timedelta(seconds=time)
+            desc = f"{delta.days} days, {delta.seconds // 3600 % 24} hours, {delta.seconds // 60 % 60} minutes remaining"
+            if desc == "0 days, 0 hours, 0 minutes remaining":
+                desc = "<1 minute remaining"
+            new_embed = discord.Embed(title=embed.title, colour=embed.colour, description=desc)
+            try:
+                await message.edit(embed=new_embed)
+            except (discord.NotFound, discord.HTTPException):
+                await caller.send(f"Your `{embed.title[2:-6]}` timer got deleted")
+                return
+        else:
+            new_embed = discord.Embed(title=embed.title, colour=embed.colour, description="Timer is up!")
+            try:
+                await message.edit(embed=new_embed)
+            except (discord.NotFound, discord.HTTPException):
+                pass
+            await caller.send(f"Your `{embed.title[2:-6]}` timer is finished!")
+            return
+"""
 
 
 class Basic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # @commands.command(aliases=["countdown"])
-    # @commands.check(globe.check_mod)
-    # async def timer(self, ctx, *, time):
-    #     match = r"(([0-9]+) ?(days?|d))?( ?([0-9]+) ?(hours?|hrs?|h))?( ?([0-9]+) ?(minutes?|mins?|m))?"
-    #     match = re.match(match, time, re.IGNORECASE)
-    #     if match:
-    #         time = [None, None, None]
-    #         time[0] = match.group(2)
-    #         time[1] = match.group(5)
-    #         time[2] = match.group(8)
-    #
-    #         order = ["days", "hours", "minutes"]
-    #         raw = ""
-    #         for i in range(len(time)):
-    #             if not time[i]:
-    #                 time[i] = 0
-    #             else:
-    #                 time[i] = int(time[i])
-    #             raw += f"{str(time[i])} {order[i]}, "
-    #         raw = raw[:-2]
-    #
-    #         time[0] = time[0] * 86400
-    #         time[1] = time[1] * 3600
-    #         time[2] = time[2] * 60
-    #         time = sum(time)
-    #
-    #         result = dt.datetime.now() + dt.timedelta(seconds=time)
-    #
-    #         embed = discord.Embed(title=f"⏱ {raw} timer", colour=0xe45898, description=raw + " remaining")
-    #         message = await ctx.send(embed=embed)
-    #
-    #         self.bot.loop.create_task(timer_loop(time, message, ctx.author))
-    #         with open('data/timers.csv', 'a') as fd:
-    #             writer = csv.writer(fd)
-    #             writer.writerow([ctx.author.id, message.id, ctx.channel.id, result])
-    #     else:
-    #         raise commands.MissingRequiredArgument
+    """
+    @commands.command(aliases=["countdown"])
+    @commands.check(globe.check_mod)
+    async def timer(self, ctx, *, time):
+        match = r"(([0-9]+) ?(days?|d))?( ?([0-9]+) ?(hours?|hrs?|h))?( ?([0-9]+) ?(minutes?|mins?|m))?"
+        match = re.match(match, time, re.IGNORECASE)
+        if match:
+            time = [None, None, None]
+            time[0] = match.group(2)
+            time[1] = match.group(5)
+            time[2] = match.group(8)
+    
+            order = ["days", "hours", "minutes"]
+            raw = ""
+            for i in range(len(time)):
+                if not time[i]:
+                    time[i] = 0
+                else:
+                    time[i] = int(time[i])
+                raw += f"{str(time[i])} {order[i]}, "
+            raw = raw[:-2]
+    
+            time[0] = time[0] * 86400
+            time[1] = time[1] * 3600
+            time[2] = time[2] * 60
+            time = sum(time)
+    
+            result = dt.datetime.now() + dt.timedelta(seconds=time)
+    
+            embed = discord.Embed(title=f"⏱ {raw} timer", colour=0xe45898, description=raw + " remaining")
+            message = await ctx.send(embed=embed)
+    
+            self.bot.loop.create_task(timer_loop(time, message, ctx.author))
+            with open('data/timers.csv', 'a') as fd:
+                writer = csv.writer(fd)
+                writer.writerow([ctx.author.id, message.id, ctx.channel.id, result])
+        else:
+            raise commands.MissingRequiredArgument
 
-    # @timer.error
-    # async def do_repeat_handler(self, ctx, error):
-    #     if isinstance(error, commands.MissingRequiredArgument):
-    #         await ctx.send(f"{globe.errorx} Your command was formatted incorrectly")
-    #     else:
-    #         print("other error")
-    #         # await self.bot.owner.send(f"`{ctx.content}`\n\nCaused:\n\n```\n{error}\n```")
-    #         raise error
+    @timer.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"{globe.errorx} Your command was formatted incorrectly")
+        else:
+            print("other error")
+            # await self.bot.owner.send(f"`{ctx.content}`\n\nCaused:\n\n```\n{error}\n```")
+            raise error
+    """
 
     @commands.Cog.listener()
+    @commands.check(globe.check_main_serv)
     async def on_member_join(self, member):
-        if member.guild.id != globe.fserv_id:
-            return
+        # Send the welcome image when people join
         cnl = member.guild.get_channel(globe.welcome_id)
-        image_handler.make_welcome("welcome", member)
+        image_handler.make_welcome("welcome", member)  # saves image to image.png
         await cnl.send(str(member.mention), file=discord.File("image.png"))
 
     @commands.Cog.listener()
+    @commands.check(globe.check_main_serv)
     async def on_member_remove(self, member):
-        if member.guild.id != globe.fserv_id:
-            return
+        # Send the goodbye message when someone leaves
         cnl = member.guild.get_channel(globe.welcome_id)
-        image_handler.make_welcome("leave", member)
+        image_handler.make_welcome("leave", member)  # image saved to image.png
         await cnl.send(str(member.mention), file=discord.File("image.png"))
 
     @commands.command(aliases=["announce"])
     @commands.check(globe.check_mod)
     async def say(self, ctx, channel: discord.TextChannel, *, message):
-        try:
-            await channel.send(message)
-        except discord.HTTPException:
-            await ctx.send(f"{globe.errorx} I can't find that channel")
+        """
+        Send a message with the bot in that channel
+        """
+        await channel.send(message)
 
     @say.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
-            await ctx.send(f"<:redcross:608943524075012117> {error.args[0]}")
+            await ctx.send(f"{globe.errorx} {error.args[0]}")
+        elif isinstance(error, commands.BotMissingPermissions):
+            await ctx.send(f"{globe.errorx} I'm not allowed to send messages there")
 
     @commands.command()
     @commands.check(globe.check_mod)
-    async def addrole(self, ctx, user: discord.Member, role):
-        role = [x for x in ctx.guild.roles if x.name.lower() == role or str(x.id) == role][0]
-        await user.add_roles(role)
-        await ctx.send("<:greentick:608943523823222785> Added role")
+    async def addrole(self, ctx, member: discord.Member, role):
+        """
+        Adds a the specified role to the member given
+        """
+        # I dont use the role converter here since it is case sensitive
+        role = [x for x in ctx.guild.roles if x.name.lower() == role.lower() or str(x.id) == role][0]
+        await member.add_roles(role)
+        await ctx.send(f"{globe.tick} Added role")
 
     @commands.Cog.listener()
     async def on_message(self, ctx):
         if ctx.author == self.bot.user:
             return
         elif ctx.guild is None:
+            # I totally don't receive all dms to the bot
             me = self.bot.owner_id
             me = self.bot.get_user(me)
             emb = discord.Embed(description=str(ctx.content))
             emb.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-            if ctx.attachments != []:
+            if ctx.attachments:
                 emb.set_image(url=ctx.attachments[0].url)
             emb.set_footer(text=ctx.created_at.strftime("%H:%M%p, %-d %b %Y"))
 
             await me.send("Dm from user", embed=emb)
 
-        elif ctx.channel.id == globe.mod_suggest_id:
+        elif ctx.channel.id == globe.suggest_id:
+            # React with the upvotes for the suggestion channel
             await ctx.add_reaction(globe.upvote)
             await ctx.add_reaction(globe.downvote)
 

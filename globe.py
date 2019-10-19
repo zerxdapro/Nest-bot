@@ -3,14 +3,14 @@ import discord
 # global variables
 
 # server IDs
-fserv_id = 624784883251675136
+serv_id = 624784883251675136
 
 # channels
 react_id = 626340503918739456
 welcome_id = 624785035437801492
 intro_id = 627986269900898325
 audit_id = 625115043356475394
-mod_suggest_id = 624785660682960916
+suggest_id = 624785660682960916
 
 # fix
 admin = 625116240771284994
@@ -47,4 +47,4 @@ def check_mod(member):
 
 
 def check_main_serv(ctx):
-    return fserv_id == ctx.guild.id
+    return serv_id == ctx.guild.id
