@@ -24,6 +24,9 @@ class Bday(commands.Cog):
 
     @bday.group(aliases=["add", "update", "change", "set"])
     async def date(self, ctx, *, date):
+        """
+        Save your birthdate into the bot
+        """
         # convert the date string into a datetime object
         formats = ["%d %B", "%d %b", "%B %d", "%b %d"]
 
@@ -61,6 +64,9 @@ class Bday(commands.Cog):
 
     @bday.group(aliases=["tz"])
     async def timezone(self, ctx, timezone):
+        """
+        Save your timezone for the birthday command
+        """
         if timezone not in pytz.all_timezones:
             await ctx.send(f"{globe.errorx} That is not a valid timezone, use the `tzsearch` command to find a timezone")
             return
@@ -80,6 +86,10 @@ class Bday(commands.Cog):
 
     @bday.group(aliases=["bday", "mine", "entry"])
     async def list(self, ctx):
+        """
+        Show what birthdate the bot has stored for you
+        """
+        # TODO: see someone else's bday
         fetch = self.c.execute("SELECT * FROM bdays WHERE ID=?", (ctx.author.id,))
         fetch = fetch.fetchone()
 
@@ -96,7 +106,11 @@ class Bday(commands.Cog):
             await ctx.send(output)
 
     @bday.group()
+    @commands.is_owner()
     async def announce(self, ctx, user: discord.Member):
+        """
+        Just a POC at the moment, dont use
+        """
         colour = [0xe60000, 0xe67300, 0xe6e600, 0x39e600, 0x00e6e6, 0x7300e6, 0xe600e6]*3
         embed = discord.Embed()
         embed.set_author(name=f"🎉🎉 Its {user.display_name}'s birthday!!! 🎉🎉", icon_url=user.avatar_url)
@@ -109,8 +123,11 @@ class Bday(commands.Cog):
             await msg.edit(embed=embed)
 
     @bday.group()
-    # @commands.check(globe.check_mod)
+    @commands.check(globe.check_mod)
     async def force(self, ctx, member: discord.Member, *, date):
+        """
+        Bypass the 3 changes limit
+        """
         # convert the date string into a datetime object
         formats = ["%d %B", "%d %b", "%B %d", "%b %d"]
 
@@ -141,7 +158,11 @@ class Bday(commands.Cog):
             self.conn.commit()
 
     @bday.group(aliases=["party", "celebrate", "today", "role", "now"])
-    async def redeem(self, ctx):  # doesnt sound intuitive
+    async def redeem(self, ctx):
+        """
+        Get given the birthday role!
+        """
+        # TODO: rename command -> doesnt sound intuitive
         fetch = self.c.execute("SELECT * FROM bdays WHERE ID=?", (ctx.author.id,))
         fetch = fetch.fetchone()
 
@@ -156,7 +177,7 @@ class Bday(commands.Cog):
         timein = dt.datetime.now(tz).replace(year=1900)
 
         if timein.date() == date.date():
-            server = self.bot.get_guild(globe.fserv_id)
+            server = self.bot.get_guild(globe.serv_id)
             role = server.get_role(globe.bday_id)
             await ctx.author.add_roles(role)
 
