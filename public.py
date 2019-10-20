@@ -14,10 +14,13 @@ class Public(commands.Cog):
 
     @commands.command()
     async def whois(self, ctx, *, member: discord.Member = None):
+        """
+        Gathers some general information about the specified user. If no user provided, the target will be yourself
+        """
         if not member:
             member = ctx.author
         embed = discord.Embed(color=member.color)
-        if str(embed.colour) == "#000000":
+        if str(embed.colour) == "#000000":  # if user doesnt have a role, make it white
             embed.colour = 0xffffff
         embed.set_author(name=member.display_name, icon_url=member.avatar_url)
         embed.add_field(name="Username", value=member.name, inline=False)
@@ -36,12 +39,17 @@ class Public(commands.Cog):
     @whois.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 
     @commands.command(aliases=["pfp", "picture", "image"])
     async def avatar(self, ctx, *, member: discord.Member = None):
+        """
+        Get the profile picture of a user. If no user is provided, it will show your profile picture.
+
+        Sometimes the image may not be displayed, that is a discord side issue.
+        """
         if not member:
             member = ctx.author
         embed = discord.Embed(title=member.display_name, color=member.colour)
@@ -54,12 +62,15 @@ class Public(commands.Cog):
     @avatar.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 
     @commands.command()
     async def server(self, ctx):
+        """
+        Show some general information on the current server
+        """
         server = ctx.guild
 
         embed = discord.Embed(color=ctx.guild.get_member(self.bot.user.id).colour, description=f"**{server.name}**")
@@ -72,6 +83,8 @@ class Public(commands.Cog):
 
         await ctx.send(embed=embed)
 
+    """
+    # i think discord fixed this but im proud of the code so i wont delete
     @commands.command(aliases=["youtube"])
     async def yt(self, ctx, url):
 
@@ -106,9 +119,13 @@ class Public(commands.Cog):
         embed.set_thumbnail(url=f"https://img.youtube.com/vi/{id}/hqdefault.jpg")
 
         await ctx.send(embed=embed)
+    """
 
     @commands.command(aliases=["timezone", "tz", "tzs", "searchtz"])
     async def tzsearch(self, ctx, search):
+        """
+        Shows a list of timezones that can be used in the bot based of a search
+        """
         tzs = pytz.all_timezones
         output = [x for x in tzs if search.lower() in x.lower()]
 
@@ -128,9 +145,14 @@ class Public(commands.Cog):
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f"{globe.errorx} You didn't provide a timezone")
+        else:
+            raise error
 
     @commands.command()
     async def timein(self, ctx, tz):
+        """
+        Get the time in the specified timezone
+        """
         tz = [x for x in pytz.all_timezones if x.lower() == tz.lower()]
 
         if tz:
@@ -150,9 +172,14 @@ class Public(commands.Cog):
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.send(f"{globe.errorx} You didn't provide a timezone")
+        else:
+            raise error
 
     @commands.command(aliases=["bot", "botinfo"])
     async def info(self, ctx):
+        """
+        Show some basic info about the bot
+        """
         bot = ctx.guild.get_member(self.bot.user.id)
         qc = await self.bot.fetch_user(self.bot.owner_id)  # if you clone this for some damn reason you better fix this
         embed = discord.Embed(colour=bot.colour)
