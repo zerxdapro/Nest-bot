@@ -78,6 +78,9 @@ class Users(commands.Cog):
 
     @commands.command(aliases=["xp"])
     async def level(self, ctx, member: discord.Member = None):
+        """
+        Display your level, position and xp on the server
+        """
         if not member:
             member = ctx.author
 
@@ -110,12 +113,15 @@ class Users(commands.Cog):
     @level.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 
     @commands.command(aliases=["top", "top10"])
     async def leaderboard(self, ctx):
+        """
+        Display the top 10 users based on server activity
+        """
         author = ctx.author.id
         query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC LIMIT 10")
         fetch = query.fetchall()
@@ -150,6 +156,9 @@ class Users(commands.Cog):
 
     @commands.command(aliases=["pos", "me"])
     async def position(self, ctx, target: discord.Member = None):
+        """
+        Display a version of the leaderboard but showing the people directly above and below you
+        """
         if not target:
             target = ctx.author
 
@@ -196,7 +205,11 @@ class Users(commands.Cog):
         await ctx.send(output)
 
     @commands.command()
+    @commands.is_owner()
     async def refreshlevels(self, ctx):
+        """
+        Goes through all the users and updates their nicknames
+        """
         server = self.bot.get_guild(globe.serv_id)
 
         query = self.c.execute("SELECT * FROM users")
@@ -221,6 +234,8 @@ def setup(bot):
 
 
 """
+# does some calculations based on the levels and stuff
+# dont need it normally
 if __name__ == "__main__":
     for i in range(2, 71):
         user = {"level": 1, "xp": 0}
