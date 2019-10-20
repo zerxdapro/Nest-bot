@@ -12,6 +12,9 @@ class Rules(commands.Cog):
     @commands.command()
     @commands.check(check_mod)
     async def addrule(self, ctx, title: str, desc: str):
+        """
+        Adds a rule to the rules channel, it will be appended to the end and automatically numbered
+        """
         server = ctx.guild
         channel = server.get_channel(globe.rule_id)
         colour = 0xffff66
@@ -26,6 +29,11 @@ class Rules(commands.Cog):
     @commands.command()
     @commands.check(check_mod)
     async def removerule(self, ctx, number: int):
+        """
+        Removes a rule from the rules channel.
+
+        All the rules will be automatically edited to account for the missing number.
+        """
         # get channel for rules
         server = ctx.guild
         channel = server.get_channel(globe.rule_id)
@@ -66,6 +74,9 @@ class Rules(commands.Cog):
     @commands.command()
     @commands.check(check_mod)
     async def editrule(self, ctx, number: int, title: str, desc: str):
+        """
+        Edit the given rule. The rule will automatically be numbered so omit that from the title
+        """
         # get channel for rules
         server = ctx.guild
         channel = server.get_channel(globe.rule_id)
