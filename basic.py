@@ -206,7 +206,7 @@ class Basic(commands.Cog):
         except Exception as error:
             await ctx.send(f"{globe.errorx} `{error}`")
 
-        if arg == "invites":
+        if cog == "invites":
             await self.bot.get_cog("Invites").setup()
         print(f"---------- RELOADED COG '{cog}' ----------")
         await ctx.send("✅")
