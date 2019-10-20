@@ -38,12 +38,17 @@ pending_events = []
 
 # checks
 
-def check_mod(member):
-    role_ids = [x.id for x in member.roles]
+def check_mod(ctx):
+    if isinstance(ctx, discord.Member):
+        author = ctx
+    else:
+        author = ctx.author
+    role_ids = [x.id for x in author.roles]
     if set(role_ids) & {mod, admin}:
         return True
     else:
         return False
+
 
 
 def check_main_serv(ctx):
