@@ -8,7 +8,7 @@ import csv
 
 bot = commands.Bot(command_prefix="/", case_insensitive=True, owner_id=349070664684142592)
 
-cogs = ["basic", "moderation", "rules", "audit", "member", "pin", "invites", "public", "help", "users", "temp"]
+cogs = ["basic", "moderation", "rules", "audit", "member", "pin", "invites", "public", "help", "users", "temp", "bday"]
 
 
 @bot.event
