@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 import re
-from globe import fserv_id, cmd_id, check_mod
+from globe import serv_id, cmd_id, check_mod
 import globe
 import asyncio
 import csv
@@ -9,7 +9,7 @@ import datetime as dt
 
 
 mute_ignore = [625112497497833514, 628560677153538088, 624784883251675137]
-server_whitelist = [globe.fserv_id, 571462276930863117]
+server_whitelist = [globe.serv_id, 571462276930863117]
 
 
 class Moderation(commands.Cog):
@@ -231,18 +231,18 @@ class Moderation(commands.Cog):
         if ctx.channel.permissions_for(ctx.author).manage_messages:
             await ctx.channel.purge(limit=amount + 1)
 
-        if not ctx.guild.id == globe.fserv_id:
+        if not ctx.guild.id == globe.serv_id:
             return
         desc = f"**{amount + 1} messages were deleted in {ctx.channel.mention} by {ctx.author.mention}**"
         embed = discord.Embed(colour=0xe45858, description=desc)
-        server = self.bot.get_guild(globe.fserv_id)
+        server = self.bot.get_guild(globe.serv_id)
         channel = server.get_channel(globe.audit_id)
         await channel.send(embed=embed)
 
     @commands.command()
     @commands.check(check_mod)
     async def warnings(self, ctx, *, user: discord.User = None):
-        server = self.bot.get_guild(fserv_id)
+        server = self.bot.get_guild(serv_id)
         if user:
             if server.get_member(user.id):
                 user = server.get_member(user.id)
@@ -256,7 +256,7 @@ class Moderation(commands.Cog):
                 if user:
                     if user.id != int(i[3]):
                         continue
-                server = self.bot.get_guild(fserv_id)
+                server = self.bot.get_guild(serv_id)
                 mod_nick = server.get_member(int(i[1]))
                 if not mod_nick:
                     mod_nick = i[0]
@@ -369,7 +369,7 @@ class Moderation(commands.Cog):
 
         if re.search(blacklist, msg) and not ctx.author.bot:
             await ctx.delete()
-            server = self.bot.get_guild(fserv_id)
+            server = self.bot.get_guild(serv_id)
             channel = server.get_channel(cmd_id)
             title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
             embed = discord.Embed(description=title + msg, colour=0xFF0000)
@@ -389,7 +389,7 @@ class Moderation(commands.Cog):
                 if inv_id in server_whitelist:  # dont delete nest and team
                     return
 
-                server = self.bot.get_guild(fserv_id)
+                server = self.bot.get_guild(serv_id)
 
                 channel = server.get_channel(cmd_id)
                 title = f"**Discord server link posted by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"

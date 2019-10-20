@@ -44,7 +44,7 @@ async def on_ready():
         reader = csv.reader(file, delimiter=",")
         reader = list(reader)
         for i in reader[1:]:
-            server = bot.get_guild(fserv_id)
+            server = bot.get_guild(serv_id)
             channel = server.get_channel(int(i[2]))
             try:
                 message = await channel.fetch_message(int(i[1]))
@@ -77,7 +77,7 @@ async def kidnap(ctx, user: discord.Member):
     """
     Don't ask
     """
-    server = bot.get_guild(globe.fserv_id)
+    server = bot.get_guild(globe.serv_id)
     muted = server.get_role(globe.muted)
     channel = 625608405528215552
     channel = server.get_channel(channel)

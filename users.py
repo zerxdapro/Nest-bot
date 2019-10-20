@@ -61,7 +61,7 @@ class Users(commands.Cog):
                 search[3] -= level_to_xp(search[2])
                 search[2] += 1
 
-                server = self.bot.get_guild(globe.fserv_id)
+                server = self.bot.get_guild(globe.serv_id)
                 bot_2 = server.get_channel(globe.bot_2_id)
 
                 embed = discord.Embed(title=f"You've reached level {search[2]}!", color=0x3ac797)
@@ -197,7 +197,7 @@ class Users(commands.Cog):
 
     @commands.command()
     async def refreshlevels(self, ctx):
-        server = self.bot.get_guild(globe.fserv_id)
+        server = self.bot.get_guild(globe.serv_id)
 
         query = self.c.execute("SELECT * FROM users")
         all = query.fetchall()

@@ -21,7 +21,7 @@ async def format_invites(guild):
 class Invites(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = self.bot.get_guild(globe.fserv_id)
+        self.guild = self.bot.get_guild(globe.serv_id)
         self.invites = None
 
     async def setup(self):

@@ -16,7 +16,7 @@ class Pin(commands.Cog):
         if reaction.emoji == PUSHPIN and not (reaction.message.author == self.bot.user and reaction.message.channel.id == globe.pin_id):
             count = len(await reaction.users().flatten())
             if count >= threshhold and reaction.message.id not in self.cache:
-                server = self.bot.get_guild(globe.fserv_id)
+                server = self.bot.get_guild(globe.serv_id)
                 channel = server.get_channel(globe.pin_id)
 
                 colour = 0xdd2e44

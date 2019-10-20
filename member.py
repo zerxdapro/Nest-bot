@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-from globe import fserv_id
+from globe import serv_id
 import globe
 import gs_handler as gsh
 from datetime import datetime as dt
@@ -16,7 +16,7 @@ class Members(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        count = len([x for x in self.bot.get_guild(fserv_id).members if not x.bot])
+        count = len([x for x in self.bot.get_guild(serv_id).members if not x.bot])
         status = f"{count} members!"
         await self.bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
         gsh.append_row([dt.now().strftime("%d/%m/%Y %H:%M:%S"), count])
@@ -29,12 +29,12 @@ class Members(commands.Cog):
         try:
             await member.send(msg.format(" head on over to the #introductions channels and"))
         except discord.Forbidden:  # if not allowed to dm
-            server = self.bot.get_guild(globe.fserv_id)
+            server = self.bot.get_guild(globe.serv_id)
             channel = server.get_channel(globe.intro_id)
             await channel.send(str(member.mention) + " " + msg.format(""))
 
         role = globe.member_role
-        server = self.bot.get_guild(globe.fserv_id)
+        server = self.bot.get_guild(globe.serv_id)
         role = server.get_role(role)
 
         await asyncio.sleep(role_timer)
@@ -47,7 +47,7 @@ class Members(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        count = len([x for x in self.bot.get_guild(fserv_id).members if not x.bot])
+        count = len([x for x in self.bot.get_guild(serv_id).members if not x.bot])
         status = f"{count} members!"
         await self.bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
         gsh.append_row([dt.now().strftime("%d/%m/%Y %H:%M:%S"), count])
@@ -55,7 +55,7 @@ class Members(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def gsupload(self, ctx):
-        count = len([x for x in self.bot.get_guild(fserv_id).members if not x.bot])
+        count = len([x for x in self.bot.get_guild(serv_id).members if not x.bot])
         status = f"{count} members!"
         await self.bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
         gsh.append_row([dt.now().strftime("%d/%m/%Y %H:%M:%S"), count])
