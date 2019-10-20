@@ -18,50 +18,58 @@ class Moderation(commands.Cog):
 
     @commands.command(aliases=["yeet"])
     @commands.has_permissions(kick_members=True)
-    async def kick(self, ctx, target: discord.Member, *, reason=None):
-        if target.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]:
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to kick that user")
+    async def kick(self, ctx, member: discord.Member, *, reason=None):
+        """
+        Kicks the specified user and dms the reason if provided
+        """
+        if member.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]:
+            await ctx.send(f"{globe.errorx} I don't have permissions to kick that user")
             return
         msg = "You have been kicked from The Nest"
         if reason:
             msg += f" for `{reason}`"
 
         try:
-            await target.send(msg)
+            await member.send(msg)
         except discord.Forbidden:
             await ctx.send("❗ I can't dm that user")
 
         await ctx.send(
-            f"**<:greentick:608943523823222785> User {target.mention} has been kicked by {ctx.author.mention}**")
-        await target.kick(reason=reason)
+            f"**{globe.tick} User {member.mention} has been kicked by {ctx.author.mention}**")
+        await member.kick(reason=reason)
 
     @kick.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("<:redcross:608943524075012117> You didn't give me someone to kick")
+            await ctx.send(f"{globe.errorx} You didn't give me someone to kick")
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to kick that user")
+            await ctx.send(f"{globe.errorx} I don't have permissions to kick that user")
         elif isinstance(error, commands.errors.BadArgument):
-            await ctx.send(f"<:redcross:608943524075012117> {error.args[0]}")
+            await ctx.send(f"{globe.errorx} {error.args[0]}")
         else:
             raise error
 
     @commands.command()
     @commands.check(globe.check_mod)
-    async def ban(self, ctx, target: discord.User, *, reason=None):
-        if target.id == ctx.author.id:
+    async def ban(self, ctx, user: discord.User, *, reason=None):
+        """
+        Ban the specified user from the server and tells them the reason if provided
+        """
+        if user.id == ctx.author.id:  # @jelly
             await ctx.send(f"{globe.errorx}  You can't ban yourself")
             return
 
-        if target in ctx.guild.members:  # if user is in the server
-            target = ctx.guild.get_member(target.id)  # set the member object
-        else:  # if not, ban
-            await ctx.send(
-                f"**<:greentick:608943523823222785> User {target.mention} has been banned from the server by {ctx.author.mention}**")
-            await ctx.guild.ban(target, reason=reason)
+        if user in ctx.guild.members:  # if user is in the server
+            target = ctx.guild.get_member(user.id)  # set the member object
+        else:  # if not in the server, ban
+            msg = f"**{globe.tick} User {user.mention} has been banned from the server by {ctx.author.mention}**"
+            await ctx.send(msg)
+            await ctx.guild.ban(user, reason=reason)
             return
-        if target.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]:  # check if bot has permissions to ban that user
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to ban that user")
+
+        # check if bot has permissions to ban that user
+        if target.roles[-1] >= ctx.guild.get_member(self.bot.user.id).roles[-1]:
+            await ctx.send(f"{globe.errorx} I don't have permissions to ban that user")
         else:
             msg = "You have been banned from The Nest"
             if reason:
@@ -70,10 +78,10 @@ class Moderation(commands.Cog):
                 await target.send(msg)
             except discord.Forbidden:
                 await ctx.send("❗ I can't dm that user")
-            await ctx.send(
-                f"**<:greentick:608943523823222785> User {target.mention} has been banned from the server by {ctx.author.mention}**")
-            await ctx.guild.ban(target, reason=reason)
 
+            msg = f"**{globe.errorx} User {target.mention} has been banned from the server by {ctx.author.mention}**"
+            await ctx.send(msg)
+            await ctx.guild.ban(target, reason=reason)
 
     @ban.error
     async def do_repeat_handler(self, ctx, error):
@@ -82,50 +90,48 @@ class Moderation(commands.Cog):
         elif isinstance(error, commands.BotMissingPermissions):
             await ctx.send("I don't have permissions to ban that user")
         elif isinstance(error, commands.errors.BadArgument):
-            await ctx.send(f"<:redcross:608943524075012117> {error.args[0]}")
+            await ctx.send(f"{globe.errorx} {error.args[0]}")
         else:
             raise error
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
-    async def unban(self, ctx, target: discord.User):
-        await ctx.send(f"<:greentick:608943523823222785> {ctx.author.mention} has unbanned {target.mention}")
-        await ctx.guild.unban(target)
-
-    @ban.error
-    async def do_repeat_handler(self, ctx, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("You didn't give me someone to ban")
-        elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("I don't have permissions to ban that user")
-        elif isinstance(error, commands.errors.BadArgument):
-            await ctx.send(f"<:redcross:608943524075012117> {error.args[0]}")
-
-    @commands.command()
-    @commands.has_permissions(ban_members=True)
-    async def unban(self, ctx, *, target):
+    async def unban(self, ctx, *, user):
+        """
+        Unban a user from the server
+        """
         bans = await ctx.guild.bans()
         for entry in bans:
             current = entry.user
-            if target in [current.name.lower(), str(current.id)]:
+            if user in [current.name.lower(), str(current.id)]:
                 await ctx.send(f"{current.mention} has been unbanned by {ctx.author.mention}")
                 await ctx.guild.unban(current)
                 return
-        await ctx.send(f"<:redcross:608943524075012117> Member '{target}' not found")
+        await ctx.send(f"{globe.errorx} Member '{user}' not found")
 
     @unban.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to unban that user")
+            await ctx.send(f"{globe.errorx} I don't have permissions to unban that user")
+        else:
+            raise error
 
     @commands.command()
     @commands.check(check_mod)
-    async def mute(self, ctx, user: discord.Member, *, time_and_reason=""):
-        if user.id == ctx.author.id:
+    async def mute(self, ctx, member: discord.Member, *, time_and_reason=""):
+        """
+        Stop a user from typing and reacting in all channels
+        """
+        # time_and_reason is a dodgy way to handle it?
+        # i think dicord.py can do this better
+        # TODO: one day
+
+        if member.id == ctx.author.id:
             await ctx.send(f"{globe.errorx} You can't mute yourself")
             return
         dm = True
 
+        # Format the message all pretty and stuff
         match = r"(([0-9]+) ?(hours?|hrs?|minutes?|mins?|m\b|h\b)? ?)?(.*)?"
         time_and_reason = time_and_reason.lower()
         match = re.match(match, time_and_reason)
@@ -133,7 +139,7 @@ class Moderation(commands.Cog):
         unit = match.group(3)
         reason = match.group(4)
         msg = "You have been muted in The Nest"
-        output = "User {} has been muted by {}".format(user.mention, ctx.author.mention)
+        output = f"User {member.mention} has been muted by {ctx.author.mention}"
         if not reason:
             reason = None
         elif reason == "nodm":
@@ -159,20 +165,15 @@ class Moderation(commands.Cog):
 
         try:
             if dm:
-                await user.send(msg)
+                await member.send(msg)
         except discord.Forbidden:
             await ctx.send("❗ I can't dm that user")
 
-        server_roles = ctx.guild.roles
-        server_roles = (x.name for x in server_roles)
-        if "Muted" not in server_roles:
-            muted = await ctx.guild.create_role(name="Muted")
-        else:
-            muted = [x for x in ctx.guild.roles if x.name == "Muted"]
-            muted = muted[0]
+        server = self.bot.get_guild(globe.serv_id)
+        muted = server.get_role(globe.muted)
 
         try:
-            await user.add_roles(muted)
+            await member.add_roles(muted)
         except discord.Forbidden:
             await ctx.send(f"{globe.errorx} I am not able to add the muted role")
 
@@ -190,50 +191,56 @@ class Moderation(commands.Cog):
         if time:
             # user name, id, event type, time to remove
             # so idk if this will work but we will go with it
-            event = [user.display_name, user.id, "unmute", (dt.datetime.now()+dt.timedelta(seconds=time)).isoformat()]
+            event = [member.display_name, member.id, "unmute", (dt.datetime.now()+dt.timedelta(seconds=time)).isoformat()]
             globe.pending_events.append(event)
             # the rest of this does actually work
             await asyncio.sleep(time)
-            await user.remove_roles(muted)
+            await member.remove_roles(muted)
 
     @mute.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("<:redcross:608943524075012117> You didn't give me someone to mute")
+            await ctx.send(f"{globe.errorx} You didn't give me someone to mute")
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to mute that user")
+            await ctx.send(f"{globe.errorx} I don't have permissions to mute that user")
         elif isinstance(error, commands.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 
     @commands.command()
     @commands.check(check_mod)
-    async def unmute(self, ctx, user: discord.Member):
-        muted = [x for x in ctx.guild.roles if x.name == "Muted"]
-        muted = muted[0]
-        await user.remove_roles(muted)
-        await ctx.send("User {} has been unmuted by {}".format(user.mention, ctx.author.mention))
+    async def unmute(self, ctx, member: discord.Member):
+        """
+        Unmute a user
+        """
+        server = self.bot.get_guild(globe.serv_id)
+        muted = server.get_role(globe.muted)
+        await member.remove_roles(muted)
+        await ctx.send(f"User {member.mention} has been unmuted by {ctx.author.mention}")
 
     @unmute.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("<:redcross:608943524075012117> You didn't give me someone to unmute")
+            await ctx.send(f"{globe.errorx} You didn't give me someone to unmute")
         elif isinstance(error, commands.BotMissingPermissions):
-            await ctx.send("<:redcross:608943524075012117> I don't have permissions to mute that user")
+            await ctx.send(f"{globe.errorx} I don't have permissions to unmute that user")
         elif isinstance(error, commands.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 
     @commands.command()
-    async def purge(self, ctx, amount: int):
+    async def purge(self, ctx, number: int):
+        """
+        Deletes the last x number of messages from the server
+        """
         if ctx.channel.permissions_for(ctx.author).manage_messages:
-            await ctx.channel.purge(limit=amount + 1)
+            await ctx.channel.purge(limit=number + 1)
 
         if not ctx.guild.id == globe.serv_id:
             return
-        desc = f"**{amount + 1} messages were deleted in {ctx.channel.mention} by {ctx.author.mention}**"
+        desc = f"**{number + 1} messages were deleted in {ctx.channel.mention} by {ctx.author.mention}**"
         embed = discord.Embed(colour=0xe45858, description=desc)
         server = self.bot.get_guild(globe.serv_id)
         channel = server.get_channel(globe.audit_id)
@@ -242,6 +249,9 @@ class Moderation(commands.Cog):
     @commands.command()
     @commands.check(check_mod)
     async def warnings(self, ctx, *, user: discord.User = None):
+        """
+        Get the warnings from a specific user. If no user is provided, ALL warnings will be shown
+        """
         server = self.bot.get_guild(serv_id)
         if user:
             if server.get_member(user.id):
@@ -302,29 +312,39 @@ class Moderation(commands.Cog):
     @warnings.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
-            await ctx.send("<:redcross:608943524075012117>  That user isn't in the server")
+            await ctx.send(f"{globe.errorx}  That user isn't in the server")
+        else:
+            raise error
 
     @commands.command()
     @commands.check(check_mod)
-    async def warn(self, ctx, target: discord.Member, *, reason):
+    async def warn(self, ctx, member: discord.Member, *, reason):
+        """
+        Add a warning to the database for that user. The user will also be DMed the reason
+        """
         with open('data/warnings.csv', 'a') as fd:
             writer = csv.writer(fd)
             # Mod name, Mod ID, User name, User ID, Reason, Time
             time = dt.datetime.now().strftime("%-d %B %y")
-            writer.writerow([ctx.author.display_name, ctx.author.id, target.display_name, target.id, reason, time])
-        await ctx.send(f"**<:greentick:608943523823222785> {target} has been warned**")
-        await target.send(f"You were warned in {ctx.guild.name} for '{reason}'")
+            writer.writerow([ctx.author.display_name, ctx.author.id, member.display_name, member.id, reason, time])
+        await ctx.send(f"**<{globe.tick} {member.mention} has been warned**")
+        await member.send(f"You were warned in {ctx.guild.name} for '{reason}'")
 
     @warn.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
-            await ctx.send("<:redcross:608943524075012117>  I can't find that user")
+            await ctx.send(f"{globe.errorx}  I can't find that user")
+        else:
+            raise error
 
     @commands.command(aliases=["dewarn"])
     @commands.check(check_mod)
-    async def unwarn(self, ctx, target: discord.Member, *, snippet):
-        if ctx.author.id == target.id:
-            await ctx.send("<:redcross:608943524075012117> You can't remove a warning to yourself")
+    async def unwarn(self, ctx, member: discord.Member, *, snippet):
+        """
+        Remove a warning from a user
+        """
+        if ctx.author.id == member.id:
+            await ctx.send(f"{globe.errorx}You can't remove a warning to yourself")
             return
         with open("data/warnings.csv", "r") as file:
             header = ["Mod name", "Mod ID", "User name", "User ID", "Reason", "Time"]
@@ -333,7 +353,7 @@ class Moderation(commands.Cog):
 
             found = False
             for i in reader[1:]:
-                if snippet.lower() in i[4].lower() and target.id == int(i[3]):
+                if snippet.lower() in i[4].lower() and member.id == int(i[3]):
                     reader.remove(i)
                     found = True
                     break
@@ -344,12 +364,12 @@ class Moderation(commands.Cog):
                 csv_writer.writerows(reader[1:])
             await ctx.send("Warning removed")
         else:
-            await ctx.send("<:redcross:608943524075012117> No warnings were found with that user or reason")
+            await ctx.send(f"{globe.errorx} No warnings were found with that user or reason")
 
     @unwarn.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
-            await ctx.send("<:redcross:608943524075012117> I can't find that user")
+            await ctx.send(f"{globe.errorx} I can't find that user")
         else:
             raise error
 

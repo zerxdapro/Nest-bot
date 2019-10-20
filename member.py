@@ -55,6 +55,9 @@ class Members(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def gsupload(self, ctx):
+        """
+        Log the member count to google sheets
+        """
         count = len([x for x in self.bot.get_guild(serv_id).members if not x.bot])
         status = f"{count} members!"
         await self.bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
