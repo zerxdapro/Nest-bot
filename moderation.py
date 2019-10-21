@@ -46,6 +46,8 @@ class Moderation(commands.Cog):
             await ctx.send(f"{globe.errorx} I don't have permissions to kick that user")
         elif isinstance(error, commands.errors.BadArgument):
             await ctx.send(f"{globe.errorx} {error.args[0]}")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -91,6 +93,8 @@ class Moderation(commands.Cog):
             await ctx.send("I don't have permissions to ban that user")
         elif isinstance(error, commands.errors.BadArgument):
             await ctx.send(f"{globe.errorx} {error.args[0]}")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -113,6 +117,8 @@ class Moderation(commands.Cog):
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.BotMissingPermissions):
             await ctx.send(f"{globe.errorx} I don't have permissions to unban that user")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -205,6 +211,8 @@ class Moderation(commands.Cog):
             await ctx.send(f"{globe.errorx} I don't have permissions to mute that user")
         elif isinstance(error, commands.BadArgument):
             await ctx.send(f"{globe.errorx} I can't find that user")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -227,6 +235,8 @@ class Moderation(commands.Cog):
             await ctx.send(f"{globe.errorx} I don't have permissions to unmute that user")
         elif isinstance(error, commands.BadArgument):
             await ctx.send(f"{globe.errorx} I can't find that user")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -313,6 +323,8 @@ class Moderation(commands.Cog):
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
             await ctx.send(f"{globe.errorx}  That user isn't in the server")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -327,13 +339,15 @@ class Moderation(commands.Cog):
             # Mod name, Mod ID, User name, User ID, Reason, Time
             time = dt.datetime.now().strftime("%-d %B %y")
             writer.writerow([ctx.author.display_name, ctx.author.id, member.display_name, member.id, reason, time])
-        await ctx.send(f"**<{globe.tick} {member.mention} has been warned**")
+        await ctx.send(f"**{globe.tick} {member.mention} has been warned**")
         await member.send(f"You were warned in {ctx.guild.name} for '{reason}'")
 
     @warn.error
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
             await ctx.send(f"{globe.errorx}  I can't find that user")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
@@ -370,6 +384,8 @@ class Moderation(commands.Cog):
     async def do_repeat_handler(self, ctx, error):
         if isinstance(error, commands.errors.BadArgument):
             await ctx.send(f"{globe.errorx} I can't find that user")
+        elif isinstance(error, commands.CheckFailure):
+            pass
         else:
             raise error
 
