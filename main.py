@@ -1,14 +1,13 @@
 import discord
 from discord.ext import commands
-import globe
+from helpers import globe
 from keys import BOT_TOKEN
-from datetime import datetime as dt
-import csv
+
 # import gs_handler as gsh
 
 bot = commands.Bot(command_prefix="/", case_insensitive=True, owner_id=349070664684142592)
 
-cogs = ["basic", "moderation", "rules", "audit", "member", "pin", "invites", "public", "help", "users", "temp", "bday"]
+cogs = ["basic", "moderation", "rules", "audit", "member", "pin", "invites", "public", "help", "users", "temp"]
 
 
 @bot.event
@@ -20,13 +19,14 @@ async def on_ready():
     # Set activity for member count
     count = len([x for x in bot.get_guild(globe.serv_id).members if not x.bot])
     status = f"{count} members!"
-    await bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
+    # await bot.change_presence(status=discord.Status('online'), activity=discord.Activity(type=discord.ActivityType.watching, name=status))
+    await bot.change_presence(status=discord.Status('idle'), activity=discord.Activity(type=discord.ActivityType.playing, name="Testing in progress"))
 
     # Import all the commands
     bot.remove_command('help')
     for i in cogs:
         print("Loading extension: " + i)
-        bot.load_extension("" + i)
+        bot.load_extension("cogs." + i)
 
     # Grab the invites for logging
     invites = bot.get_cog("Invites")

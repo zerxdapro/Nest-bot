@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
-import globe
-from globe import check_mod
+from helpers import globe
+from helpers.globe import check_mod
 import csv
 
 

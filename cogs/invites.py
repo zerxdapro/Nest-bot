@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import globe
+from helpers import globe
 from collections import namedtuple
 
 Inv = namedtuple("Inv", "user code uses temp")

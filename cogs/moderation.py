@@ -1,8 +1,8 @@
 from discord.ext import commands
 import discord
 import re
-from globe import serv_id, cmd_id, check_mod
-import globe
+from helpers.globe import serv_id, cmd_id, check_mod
+from helpers import globe
 import asyncio
 import csv
 import datetime as dt
@@ -241,7 +241,7 @@ class Moderation(commands.Cog):
             raise error
 
     @commands.command()
-    @commands.command(globe.check_mod)
+    @commands.check(check_mod)
     async def purge(self, ctx, number: int):
         """
         Deletes the last x number of messages from the server

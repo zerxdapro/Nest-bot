@@ -1,8 +1,7 @@
 from discord.ext import commands
 import discord
-from globe import serv_id
-import globe
-import gs_handler as gsh
+from helpers.globe import serv_id
+from helpers import gs_handler as gsh, globe
 from datetime import datetime as dt
 import asyncio
 

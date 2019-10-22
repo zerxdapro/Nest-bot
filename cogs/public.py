@@ -1,9 +1,6 @@
 from discord.ext import commands
 import discord
-from bs4 import BeautifulSoup
-import requests
-import re
-import globe
+from helpers import globe
 import pytz
 import datetime as dt
 

@@ -1,6 +1,6 @@
 from discord.ext import commands
 import discord
-import globe
+from helpers import globe
 import datetime as dt
 import sqlite3 as sql
 import pytz

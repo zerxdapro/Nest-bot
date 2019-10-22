@@ -2,14 +2,10 @@ import inspect
 from discord.ext import commands
 import discord
 import re
-import globe
-import asyncio
-import datetime as dt
+from helpers import globe, image_handler
 import requests
-import image_handler
-import csv
 from PIL import Image, ImageFont, ImageDraw
-from image_handler import mask_circle_transparent
+from helpers.image_handler import mask_circle_transparent
 
 #  :zero: :one: :two: etc
 num_emoji = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷",
@@ -202,7 +198,7 @@ class Basic(commands.Cog):
         Reloads a cog and updates changes to it
         """
         try:
-            self.bot.reload_extension(cog)
+            self.bot.reload_extension("cogs." + cog)
         except Exception as error:
             await ctx.send(f"{globe.errorx} `{error}`")
 
