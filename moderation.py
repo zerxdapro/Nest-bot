@@ -17,7 +17,7 @@ class Moderation(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["yeet"])
-    @commands.has_permissions(kick_members=True)
+    @commands.check(globe.check_mod)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         """
         Kicks the specified user and dms the reason if provided
@@ -99,7 +99,7 @@ class Moderation(commands.Cog):
             raise error
 
     @commands.command()
-    @commands.has_permissions(ban_members=True)
+    @commands.check(globe.check_mod)
     async def unban(self, ctx, *, user):
         """
         Unban a user from the server
@@ -241,20 +241,19 @@ class Moderation(commands.Cog):
             raise error
 
     @commands.command()
+    @commands.command(globe.check_mod)
     async def purge(self, ctx, number: int):
         """
         Deletes the last x number of messages from the server
         """
-        if ctx.channel.permissions_for(ctx.author).manage_messages:
-            await ctx.channel.purge(limit=number + 1)
+        await ctx.channel.purge(limit=number + 1)
 
-        if not ctx.guild.id == globe.serv_id:
-            return
-        desc = f"**{number + 1} messages were deleted in {ctx.channel.mention} by {ctx.author.mention}**"
-        embed = discord.Embed(colour=0xe45858, description=desc)
-        server = self.bot.get_guild(globe.serv_id)
-        channel = server.get_channel(globe.audit_id)
-        await channel.send(embed=embed)
+        if ctx.guild.id == globe.serv_id:
+            desc = f"**{number + 1} messages were deleted in {ctx.channel.mention} by {ctx.author.mention}**"
+            embed = discord.Embed(colour=0xe45858, description=desc)
+            server = self.bot.get_guild(globe.serv_id)
+            channel = server.get_channel(globe.audit_id)
+            await channel.send(embed=embed)
 
     @commands.command()
     @commands.check(check_mod)
