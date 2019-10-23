@@ -177,22 +177,17 @@ class Moderation(commands.Cog):
 
         server = self.bot.get_guild(globe.serv_id)
         muted = server.get_role(globe.muted)
+        main_role = server.get_role(globe.member_role)
 
         try:
             await member.add_roles(muted)
+            await member.remove_roles(main_role)
         except discord.Forbidden:
             await ctx.send(f"{globe.errorx} I am not able to add the muted role")
 
         if not dm:
             output += "\n`[User was not messaged]`"
         await ctx.send(output)
-
-        for channel in ctx.guild.channels:
-            try:
-                if channel.category_id not in mute_ignore:  # ignore mod channels
-                    await channel.set_permissions(muted, send_messages=False, add_reactions=False)
-            except discord.Forbidden:
-                pass
 
         if time:
             # user name, id, event type, time to remove
@@ -202,6 +197,7 @@ class Moderation(commands.Cog):
             # the rest of this does actually work
             await asyncio.sleep(time)
             await member.remove_roles(muted)
+            await member.add_roles(main_role)
 
     @mute.error
     async def do_repeat_handler(self, ctx, error):
@@ -224,7 +220,9 @@ class Moderation(commands.Cog):
         """
         server = self.bot.get_guild(globe.serv_id)
         muted = server.get_role(globe.muted)
+        main_role = server.get_role(globe.member_role)
         await member.remove_roles(muted)
+        await member.add_roles(main_role)
         await ctx.send(f"User {member.mention} has been unmuted by {ctx.author.mention}")
 
     @unmute.error
