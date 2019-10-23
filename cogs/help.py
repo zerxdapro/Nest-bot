@@ -54,7 +54,6 @@ class Help(commands.Cog):
                     try:
                         can_run = await i.can_run(ctx)
                     except Exception:
-                        print("error")
                         can_run = False
 
                     if can_run:

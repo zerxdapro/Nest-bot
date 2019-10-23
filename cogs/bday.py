@@ -100,6 +100,7 @@ class Bday(commands.Cog):
     async def list(self, ctx, member: discord.Member = None):
         """
         Show what birthdate and timezone the bot has stored for you
+        If a member is specified, it will show their birthday
         """
         if not member:
             target = ctx.author
