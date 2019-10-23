@@ -8,7 +8,6 @@ import csv
 import datetime as dt
 
 
-mute_ignore = [625112497497833514, 628560677153538088, 624784883251675137]
 server_whitelist = [globe.serv_id, 571462276930863117]
 
 

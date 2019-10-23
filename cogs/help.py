@@ -24,7 +24,7 @@ arg_details = {
     "code": {"input": ["Code to run"]},
     "cog": {"input": ["A cog to load into the bot"]},
     "date": {"input": ["1 Jan", "Feb 21"]},
-    "time_and_reason": {"input": ["e"]}
+    "time_and_reason": {"input": ["The time and reason or the reason and time", "5 minutes you smell", "rule 1 2hours"]}
 }
 
 
