@@ -17,7 +17,7 @@ class Bday(commands.Cog):
         self.conn = sql.connect("data/bday.db")
         self.c = self.conn.cursor()
 
-    @commands.group()
+    @commands.group(hidden=True)
     async def bday(self, ctx):
         # all commands using the @bday.group decorator will be prefixed with "bday", e.g. "bday date"
         pass

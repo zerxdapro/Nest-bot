@@ -12,7 +12,8 @@ class Public(commands.Cog):
     @commands.command()
     async def whois(self, ctx, *, member: discord.Member = None):
         """
-        Gathers some general information about the specified user. If no user provided, the target will be yourself
+        Gathers some general information about the specified user
+        If no user provided, the target will be yourself
         """
         if not member:
             member = ctx.author

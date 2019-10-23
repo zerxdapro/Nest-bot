@@ -260,6 +260,7 @@ class Basic(commands.Cog):
         await ctx.send("✅")
 
     @commands.command()
+    @commands.check(globe.check_mod)
     async def poll(self, ctx, question, *answers):
         """
         QOTD poll
