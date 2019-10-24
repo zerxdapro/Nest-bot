@@ -102,7 +102,8 @@ class Help(commands.Cog):
                 desc = f"**Aliases:** {aliases}\n{desc}"
 
             args = command.clean_params
-            title = f"{self.bot.command_prefix}{command.qualified_name} "
+            p = self.bot.command_prefix
+            title = f"{p}{command.qualified_name} "
 
             embed = discord.Embed(title=title, colour=ctx.guild.get_member(self.bot.user.id).colour)
 
@@ -119,6 +120,8 @@ class Help(commands.Cog):
                 else:
                     title += f"{{{i.name}}} "
                     embed.add_field(name=f"{i.name.title()} (optional)", value=examples, inline=False)
+            
+            embed.set_footer(text=f'Arguments containing spaces may require quotation marks around them, e.g. {p}whois "Quantum Cucumber"')
 
             embed.description = desc
             embed.title = title
