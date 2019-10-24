@@ -27,8 +27,14 @@ class Ticket(commands.Cog):
         self.bot = bot
         self.p = self.bot.command_prefix
 
-    @commands.group(aliases=["tk"], invoke_without_command=True)
+    @commands.group(aliases=["tk"], invoke_without_command=True, hidden=True)
     async def ticket(self, ctx):
+        """
+        Ticketing system
+        /ticket create
+        /ticket send
+        /ticket close
+        """
         if ctx.guild:
             await ctx.send(f"{globe.errorx} That command can only be used in DMs")
             return
@@ -42,9 +48,23 @@ class Ticket(commands.Cog):
             embed = discord.Embed(title="You have no support tickets active", color=colour)
             await ctx.send(embed=embed)
 
+    @ticket.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            return
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(f"{globe.errorx} {error.args[0]}")
+        else:
+            raise error
+
     @ticket.group(aliases=["add"])
-    @commands.dm_only()
     async def create(self, ctx, *, message):
+        """
+        Create a new ticket
+        You can only have 1 ticket at a time
+        """
+        if ctx.guild:
+            raise commands.CheckFailure
         ticket = get_ticket(ctx.author.id)
         if ticket:
             embed = discord.Embed(title="You already have an active support ticket", colour=colour)
@@ -58,7 +78,7 @@ class Ticket(commands.Cog):
             # if a ticket is found with that ID, make a new id and check that
             ticket_id = "".join([random.choice(hexdigits) for x in range(6)]).upper()  # 6 digit hex value, upper case
 
-        guild = self.bot.get_guild(globe.test_id)  # TODO: fix
+        guild = self.bot.get_guild(globe.serv_id)
         category = discord.utils.get(guild.categories, id=globe.ticket_cat)
         ticket_channel = await category.create_text_channel(ticket_id)
         await ticket_channel.send(f"@here Ticket {ticket_id} created:\n```{message}```")
@@ -71,8 +91,24 @@ class Ticket(commands.Cog):
         embed.description = f"**Ticket ID: {ticket_id}**"
         await ctx.send(embed=embed)
 
+    @create.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            return
+        elif isinstance(error, commands.CheckFailure):
+            await ctx.send(f"{globe.errorx} That command can only be used in dms")
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send(f"{globe.errorx} {error.args[0]}")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"{globe.errorx} You need to specify what you want to send")
+        else:
+            raise error
+
     @ticket.group()
-    async def close(self, ctx: commands.Context):
+    async def close(self, ctx):
+        """
+        Close the current ticket
+        """
         if ctx.guild and ctx.channel.category_id == globe.ticket_cat:  # called in a ticket channel
             ticket_id = ctx.channel.name.upper()
             ticket = get_ticket(tick_id=ticket_id)
@@ -104,7 +140,7 @@ class Ticket(commands.Cog):
             if not ticket:
                 await ctx.send(f"{globe.errorx} There are no active tickets")
             else:
-                guild = self.bot.get_guild(globe.test_id)
+                guild = self.bot.get_guild(globe.serv_id)
                 channel = guild.get_channel(int(ticket[2]))
 
                 await channel.send("ℹ  Ticket closed by user")
@@ -125,6 +161,9 @@ class Ticket(commands.Cog):
 
     @ticket.group(aliases=["s", "reply", "r"])
     async def send(self, ctx, *, message):
+        """
+        Send a message to the mods handling the current ticket
+        """
         if ctx.guild and ctx.channel.category_id == globe.ticket_cat:  # called in a ticket channel
             ticket_id = ctx.channel.name.upper()
             ticket = get_ticket(tick_id=ticket_id)
@@ -148,7 +187,7 @@ class Ticket(commands.Cog):
             if not ticket:
                 await ctx.send(f"{globe.errorx} There are no active tickets")
             else:
-                guild = self.bot.get_guild(globe.test_id)
+                guild = self.bot.get_guild(globe.serv_id)
                 channel = guild.get_channel(int(ticket[2]))
                 embed = discord.Embed(colour=colour, description=message)
                 embed.set_author(name=ticket[1], icon_url=self.bot.user.default_avatar_url)
@@ -156,21 +195,14 @@ class Ticket(commands.Cog):
 
                 await ctx.message.add_reaction(globe.tick)
 
-    @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
-        if hasattr(ctx.command, 'on_error'):  # if the command handles the error on its own
+    @send.error
+    async def do_repeat_handler(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
             return
-
-        error = getattr(error, 'original', error)  # idk found on github
-
-        if isinstance(error, commands.CommandNotFound):  # noone cares lel
-            return
-        elif isinstance(error, commands.CheckFailure):
-            await ctx.send(f"{globe.errorx} That command can only be used in dms")
         elif isinstance(error, commands.BadArgument):
             await ctx.send(f"{globe.errorx} {error.args[0]}")
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"{globe.errorx} Your command is missing an argument, consult the help command")
+            await ctx.send(f"{globe.errorx} You need to specify what you want to send")
         else:
             raise error
 
