@@ -3,6 +3,10 @@ import discord
 from helpers import globe
 import pytz
 import datetime as dt
+import re
+import requests
+from PIL import Image, ImageFont, ImageDraw
+from helpers.image_handler import mask_circle_transparent
 
 
 class Public(commands.Cog):
@@ -189,6 +193,51 @@ class Public(commands.Cog):
         embed.add_field(name="Creator", value=qc)
 
         await ctx.send(embed=embed)
+
+    @commands.command(aliases=["color"])
+    async def colour(self, ctx, hexcol):
+        """
+        Show an image of the given colour
+        """
+        rex = re.match(r"#([0-9a-f]{6})", hexcol, re.IGNORECASE)
+        if rex:
+            await ctx.trigger_typing()
+            image = Image.new("RGB", (256, 256), hexcol)
+            image.save("image.png")
+            await ctx.send(f"🖌 Colour: {hexcol}", file=discord.File("image.png"))
+        else:
+            await ctx.send(f"{globe.errorx} That input is not a hexadecimal colour")
+
+    @commands.command(aliases=["coltest", "colourtest", "role", "testcolour"])
+    async def testcol(self, ctx, hexcol):
+        """
+        Creates an image showing what it would look like if your role was that colour
+        """
+        rex = re.match(r"#([0-9a-f]{6})", hexcol, re.IGNORECASE)
+        if rex:
+            await ctx.trigger_typing()
+            font_path = "images/Whitney Medium.ttf"
+            padding = 20
+            pfp = Image.open(requests.get(ctx.author.avatar_url_as(format="png", size=128), stream=True).raw)
+            pfp = mask_circle_transparent(pfp)
+            font = ImageFont.truetype(font_path, 39)
+            width = padding * 3 + font.getsize("M" * 32)[0] + 128
+            height = 128 + padding * 2
+            image = Image.new("RGBA", (width, height), "#36393f")
+            image.paste(pfp, (padding, padding, 128 + padding, 128 + padding), pfp)
+
+            font = ImageFont.truetype(font_path, 42)
+            draw = ImageDraw.Draw(image)
+            draw.text((128 + padding * 2, padding), ctx.author.display_name, font=font, fill=hexcol)
+            draw.text((128 + padding * 2 + 1, padding), ctx.author.display_name, font=font, fill=hexcol)
+            height = font.getsize(ctx.author.display_name)[1]
+            font = ImageFont.truetype(font_path, 39)
+            draw.text((128 + padding * 2, padding * 1.5 + height), f"{ctx.guild.name}", font=font,
+                      fill="#dcddde")
+            image.save("image.png")
+            await ctx.send(f"🖌 Colour: {hexcol}", file=discord.File("image.png"))
+        else:
+            await ctx.send(f"{globe.errorx} That input is not a hexadecimal colour")
 
 
 def setup(bot):
