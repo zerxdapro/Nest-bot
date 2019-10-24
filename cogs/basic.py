@@ -174,17 +174,16 @@ class Basic(commands.Cog):
     async def on_message(self, ctx):
         if ctx.author == self.bot.user:
             return
-        elif ctx.guild is None:
-            # I totally don't receive all dms to the bot
-            me = self.bot.owner_id
-            me = self.bot.get_user(me)
-            emb = discord.Embed(description=str(ctx.content))
-            emb.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-            if ctx.attachments:
-                emb.set_image(url=ctx.attachments[0].url)
-            emb.set_footer(text=ctx.created_at.strftime("%H:%M%p, %-d %b %Y"))
-
-            await me.send("Dm from user", embed=emb)
+        # elif ctx.guild is None:
+        #     # I totally don't receive all dms to the bot
+        #     me = self.bot.owner_id
+        #     me = self.bot.get_user(me)
+        #     emb = discord.Embed(description=str(ctx.content))
+        #     emb.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+        #     if ctx.attachments:
+        #         emb.set_image(url=ctx.attachments[0].url)
+        #     emb.set_footer(text=ctx.created_at.strftime("%H:%M%p, %-d %b %Y"))
+        #     await me.send("Dm from user", embed=emb)
 
         elif ctx.channel.id == globe.suggest_id:
             # React with the upvotes for the suggestion channel
