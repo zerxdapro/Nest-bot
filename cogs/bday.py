@@ -80,7 +80,9 @@ class Bday(commands.Cog):
         """
         if timezone not in pytz.all_timezones:
             await ctx.send(
-                f"{globe.errorx} That is not a valid timezone, use the `tzsearch` command to find a timezone")
+                f"{globe.errorx} That is not a valid timezone, use the `tzsearch` command to find a timezone\n"
+                "This link may help: http://kevalbhatt.github.io/timezone-picker/ Select your location on the map and"
+                " run this command again with the Country/City or Continent/City value from the site")
             return
 
         # check if entry in db

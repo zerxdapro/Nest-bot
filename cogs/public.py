@@ -137,7 +137,9 @@ class Public(commands.Cog):
 
             await ctx.send(header + output + footer)
         else:
-            await ctx.send(f"{globe.errorx} No timezones were found for that location")
+            await ctx.send(f"{globe.errorx} No timezones were found for that location\n This link may help: "
+                           f"http://kevalbhatt.github.io/timezone-picker/ Select your location on the map and run "
+                           f"this command again with the Country/City or Continent/City value from the site")
 
     @tzsearch.error
     async def do_repeat_handler(self, ctx, error):
