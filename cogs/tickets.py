@@ -4,6 +4,7 @@ from helpers import globe
 import csv
 from string import hexdigits
 import random
+import datetime as dt
 
 colour = 0x68c8e0
 
@@ -55,7 +56,7 @@ class Ticket(commands.Cog):
         else:
             raise error
 
-    @ticket.group(aliases=["add"])
+    @ticket.group(aliases=["add", "open"])
     async def create(self, ctx, *, message):
         """
         Create a new ticket
@@ -176,7 +177,7 @@ class Ticket(commands.Cog):
                     embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
                     await member.send(embed=embed)
 
-                    await ctx.message.add_reaction(globe.tick)
+                    await ctx.message.add_reaction("📧")
                 else:
                     await ctx.send(f"{globe.errorx} I can't find the user in the server! `(user left server?)`")
         else:
@@ -191,7 +192,7 @@ class Ticket(commands.Cog):
                 embed.set_author(name=ticket[1], icon_url=self.bot.user.default_avatar_url)
                 await channel.send(embed=embed)
 
-                await ctx.message.add_reaction(globe.tick)
+                await ctx.message.add_reaction("📧")
 
     @send.error
     async def do_repeat_handler(self, ctx, error):
@@ -203,6 +204,24 @@ class Ticket(commands.Cog):
             await ctx.send(f"{globe.errorx} You need to specify what you want to send")
         else:
             raise error
+
+    @ticket.group()
+    @commands.check(globe.check_mod)
+    async def warn(self, ctx, *, reason):
+        """
+        Warn the anonymous author of the ticket
+        """
+        if ctx.guild and ctx.channel.category_id == globe.ticket_cat:  # called in a ticket channel
+            ticket = get_ticket(tick_id=ctx.channel.name.upper())
+            member = ctx.guild.get_member(int(ticket[0]))
+
+            with open('data/warnings.csv', 'a') as fd:
+                writer = csv.writer(fd)
+                # Mod name, Mod ID, User name, User ID, Reason, Time
+                time = dt.datetime.now().strftime("%-d %B %y")
+                writer.writerow([ctx.author.display_name, ctx.author.id, member.display_name, member.id, reason, time])
+            await ctx.send(f"**{globe.tick} Author of {ticket[1]} has been warned**")
+            await member.send(f"You were warned in {ctx.guild.name} for '{reason}'")
 
 
 def setup(bot):
