@@ -27,13 +27,11 @@ class Ticket(commands.Cog):
         self.bot = bot
         self.p = self.bot.command_prefix
 
-    @commands.group(aliases=["tk"], invoke_without_command=True, hidden=True)
+    @commands.group(aliases=["tk"], invoke_without_command=True)
     async def ticket(self, ctx):
         """
-        Ticketing system
-        /ticket create
-        /ticket send
-        /ticket close
+        A system to anonymously send reports and other messages to the moderation team
+        Running this command on its own will show your open ticket, if one exists
         """
         if ctx.guild:
             await ctx.send(f"{globe.errorx} That command can only be used in DMs")

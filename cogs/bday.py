@@ -20,13 +20,7 @@ class Bday(commands.Cog):
     @commands.group()
     async def bday(self, ctx):
         """
-        Add your birthday to the bot and have a party!
-        ▫`/bday set [date]` to set your birthdate (you can only do this up to 3 times)
-        ▫`/bday timezone [timezone]` to set your timezone (`/tzsearch [location]` to find the timezone you need)
-        ▫`/bday list` show the birthdate and timezone currently saved
-        ▫`/bday party` get the birthday role!! (has to be your birthday)
-        
-        Use the help command on any of these commands for more info 
+        Tell the bot your birthday and party!
         """  # this is an example of how not to code
         # all commands using the @bday.group decorator will be prefixed with "bday", e.g. "bday date"
         pass

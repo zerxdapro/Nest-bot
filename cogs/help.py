@@ -38,6 +38,8 @@ class Help(commands.Cog):
         You are here
         See all the available commands, if a command is specified `help command` the long help listing will be shown
         """
+        # Has no support for nested command groups, doesn't need it atm but you should add it
+
         if not command:
             cmd = list(self.bot.commands)
             server = self.bot.get_guild(globe.serv_id)
@@ -57,7 +59,12 @@ class Help(commands.Cog):
                         can_run = False
 
                     if can_run:
-                        embed.add_field(name=str(i), value=str(i.help).split("\n")[0], inline=False)
+                        if not isinstance(i, commands.Group) or i.parent:  # normal command
+                            embed.add_field(name=str(i), value=str(i.help).split("\n")[0], inline=False)
+                        else:  # Group parent
+                            embed.add_field(name=str(i),
+                                            value="*This is a command group, run the help command to see its commands*",
+                                            inline=False)
 
             await ctx.send(embed=embed)
 
@@ -75,7 +82,13 @@ class Help(commands.Cog):
                     checks = list(map(str, i.checks))
                     checks = " ".join(checks)
                     if "check_mod" not in checks and "is_owner" not in checks:
-                        embed.add_field(name=str(i), value=str(i.help).split("\n")[0], inline=False)
+
+                        if not isinstance(i, commands.Group) or i.parent:  # normal command
+                            embed.add_field(name=str(i), value=str(i.help).split("\n")[0], inline=False)
+                        else:  # Group parent
+                            embed.add_field(name=str(i),
+                                            value="*This is a command group, run the help command to see its commands*",
+                                            inline=False)
 
             await ctx.send(embed=embed)
 
@@ -96,38 +109,63 @@ class Help(commands.Cog):
                 await ctx.send(f"{globe.errorx} You aren't allowed to run the `{command.qualified_name}` command")
                 return
 
-            desc = command.help
-            aliases = ", ".join(command.aliases)
-            if aliases:
-                desc = f"**Aliases:** {aliases}\n{desc}"
+            if not isinstance(command, commands.Group) or command.parent:  # if not a group base
+                desc = command.help
+                aliases = ", ".join(command.aliases)
+                if aliases:
+                    desc = f"**Aliases:** {aliases}\n{desc}"
 
-            args = command.clean_params
-            p = self.bot.command_prefix
-            title = f"{p}{command.qualified_name} "
+                args = command.clean_params
+                p = self.bot.command_prefix
+                title = f"{p}{command.qualified_name} "
 
-            embed = discord.Embed(title=title, colour=ctx.guild.get_member(self.bot.user.id).colour)
+                embed = discord.Embed(title=title, colour=ctx.guild.get_member(self.bot.user.id).colour)
+                arguments = []  # generate arguments
+                for i in args:
+                    i = args[i]
+                    optional = i.default
 
-            arguments = []  # generate arguments
-            for i in args:
-                i = args[i]
-                optional = i.default
+                    examples = list(arg_details[i.name].values())[0]
+                    examples = "\n▫ " + "\n▫ ".join(examples)
+                    if optional:
+                        title += f"[{i.name}] "
+                        embed.add_field(name=i.name.title(), value=examples, inline=False)
+                    else:
+                        title += f"{{{i.name}}} "
+                        embed.add_field(name=f"{i.name.title()} (optional)", value=examples, inline=False)
 
-                examples = list(arg_details[i.name].values())[0]
-                examples = "\n▫ " + "\n▫ ".join(examples)
-                if optional:
-                    title += f"[{i.name}] "
-                    embed.add_field(name=i.name.title(), value=examples, inline=False)
+                embed.set_footer(
+                    text=f'Arguments containing spaces may require quotation marks around them, e.g. {p}whois "Quantum Cucumber"')
+
+                embed.description = desc
+                embed.title = title
+                embed.set_thumbnail(url=self.bot.user.avatar_url)
+
+                await ctx.send(embed=embed)
+
+            else:
+                p = self.bot.command_prefix
+                title = p + command.qualified_name
+                embed = discord.Embed(title=title, colour=ctx.guild.get_member(self.bot.user.id).colour)
+                aliases = ", ".join(command.aliases)
+                if aliases:
+                    desc = f"**Aliases:** {aliases}\n"
                 else:
-                    title += f"{{{i.name}}} "
-                    embed.add_field(name=f"{i.name.title()} (optional)", value=examples, inline=False)
-            
-            embed.set_footer(text=f'Arguments containing spaces may require quotation marks around them, e.g. {p}whois "Quantum Cucumber"')
+                    desc = ""
 
-            embed.description = desc
-            embed.title = title
-            embed.set_thumbnail(url=self.bot.user.avatar_url)
+                desc += f"**This is a command group**\n{command.help}\n\n**Child commands:**"
+                embed.description = desc
 
-            await ctx.send(embed=embed)
+                for i in command.commands:
+                    try:
+                        can_run = await i.can_run(ctx)
+                        if can_run:
+                            embed.add_field(name=p + i.qualified_name, value=i.help.split("\n")[0], inline=False)
+                    except Exception:
+                        pass
+
+                embed.set_footer(text="Use the help command on any of these for more options")
+                await ctx.send(embed=embed)
 
 
 def setup(bot):
