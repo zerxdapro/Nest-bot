@@ -16,7 +16,6 @@ class Logging(commands.Cog):
             return
         embed = discord.Embed(description=f"**Message Deleted in {message.channel.mention}**\n{message.content}", colour=0xe47b58)
         embed.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
-        embed.set_footer(text=message.created_at.strftime("%-I:%M%p, %-d %b %Y"))
 
         server = self.bot.get_guild(globe.serv_id)
         channel = server.get_channel(globe.audit_id)
@@ -33,8 +32,6 @@ class Logging(commands.Cog):
         embed.set_author(name=message.author.display_name, icon_url=message.author.avatar_url)
         embed.add_field(name="Old", value=old_message.content, inline=False)
         embed.add_field(name="New", value=message.content, inline=False)
-        if message.edited_at:
-            embed.set_footer(text=message.edited_at.strftime("%-I:%M%p, %-d %b %Y"))
 
         server = self.bot.get_guild(globe.serv_id)
         channel = server.get_channel(globe.audit_id)
@@ -68,6 +65,19 @@ class Logging(commands.Cog):
             server = self.bot.get_guild(globe.serv_id)
             channel = server.get_channel(globe.audit_id)
             await channel.send(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        if user.bot:
+            return
+        server = self.bot.get_guild(globe.serv_id)
+        channel = server.get_channel(globe.audit_id)
+
+        embed = discord.Embed(colour=0xff0000, description="**Reaction added**")
+        embed.set_author(name=user.display_name, icon_url=user.avatar_url)
+        embed.add_field(name="Reaction", value=str(reaction.emoji) + f"\n\n [Link]({reaction.message.jump_url})")
+
+        await channel.send(embed=embed)
 
 
 def setup(bot):
