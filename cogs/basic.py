@@ -3,9 +3,7 @@ from discord.ext import commands
 import discord
 import re
 from helpers import globe, image_handler
-import requests
-from PIL import Image, ImageFont, ImageDraw
-from helpers.image_handler import mask_circle_transparent
+import importlib
 
 #  :zero: :one: :two: etc
 num_emoji = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷",
