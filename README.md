@@ -14,3 +14,4 @@ Since its a personal bot, many things will be useless to most people and to even
 + oauth2client
 + BeautifulSoup4
 + Pillow
++ PyYaml
