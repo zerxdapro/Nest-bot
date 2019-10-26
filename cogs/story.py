@@ -4,6 +4,11 @@ from helpers import globe
 import yaml
 
 
+"""
+Dont ever use this again quantum. seriously.
+"""
+
+
 def story_channel(ctx):
     return ctx.channel.id == globe.story_id
 
