@@ -32,6 +32,9 @@ class Members(commands.Cog):
             channel = server.get_channel(globe.intro_id)
             await channel.send(str(member.mention) + " " + msg.format(""))
 
+        if member.id in globe.mutes:
+            return
+
         role = globe.member_role
         server = self.bot.get_guild(globe.serv_id)
         role = server.get_role(role)

@@ -39,6 +39,7 @@ tick = "<:greentick:608943523823222785>"
 
 
 pending_events = []
+mutes = []
 
 
 # checks
@@ -53,7 +54,6 @@ def check_mod(ctx):
         return True
     else:
         return False
-
 
 
 def check_main_serv(ctx):

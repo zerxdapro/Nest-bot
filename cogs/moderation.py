@@ -188,6 +188,8 @@ class Moderation(commands.Cog):
             output += "\n`[User was not messaged]`"
         await ctx.send(output)
 
+        globe.mutes.append(member.id)
+
         if time:
             # user name, id, event type, time to remove
             # so idk if this will work but we will go with it
@@ -197,6 +199,7 @@ class Moderation(commands.Cog):
             await asyncio.sleep(time)
             await member.remove_roles(muted)
             await member.add_roles(main_role)
+            globe.mutes.remove(member.id)
 
     @mute.error
     async def do_repeat_handler(self, ctx, error):
@@ -223,6 +226,9 @@ class Moderation(commands.Cog):
         await member.remove_roles(muted)
         await member.add_roles(main_role)
         await ctx.send(f"User {member.mention} has been unmuted by {ctx.author.mention}")
+
+        if member.id in globe.mutes:
+            globe.mutes.remove(member.id)
 
     @unmute.error
     async def do_repeat_handler(self, ctx, error):
