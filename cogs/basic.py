@@ -201,6 +201,7 @@ class Basic(commands.Cog):
             self.bot.reload_extension("cogs." + cog)
         except Exception as error:
             await ctx.send(f"{globe.errorx} `{error}`")
+            return
 
         if cog == "invites":
             await self.bot.get_cog("Invites").setup()
