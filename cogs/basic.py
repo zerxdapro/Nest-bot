@@ -5,6 +5,8 @@ import re
 from helpers import globe, image_handler
 import importlib
 
+updown = [637397393771331596]
+
 #  :zero: :one: :two: etc
 num_emoji = ["🇦", "🇧", "🇨", "🇩", "🇪", "🇫", "🇬", "🇭", "🇮", "🇯", "🇰", "🇱", "🇲", "🇳", "🇴", "🇵", "🇶", "🇷",
              "🇸", "🇹", "🇺", "🇻", "🇼", "🇽", "🇾", "🇿"]
@@ -36,13 +38,14 @@ react_roles = [
         "🏰": 627979557189713931,
         "🇺🇸": 631748587143036929
     }},
-    {"ID": 632753058190852096, "roles": {"🏳️‍🌈": 632752022411673600}}
+    {"ID": 632753058190852096, "roles": {"🏳️‍🌈": 632752022411673600}},
+    {"ID": 637401193001386026, "roles": {"📚": 637305961802891284}}
 ]
 
 """
 async def timer_loop(time, message, caller):
     embed = message.embeds[0]
-    loops = int(time / 60)
+    loops = int(time / 60)prima
     if time % 60:
         loops += 1
     for i in range(loops):
@@ -183,7 +186,7 @@ class Basic(commands.Cog):
         #     emb.set_footer(text=ctx.created_at.strftime("%H:%M%p, %-d %b %Y"))
         #     await me.send("Dm from user", embed=emb)
 
-        elif ctx.channel.id == globe.suggest_id:
+        elif ctx.channel.id == globe.suggest_id or ctx.channel.id in updown:
             # React with the upvotes for the suggestion channel
             await ctx.add_reaction(globe.upvote)
             await ctx.add_reaction(globe.downvote)

@@ -67,7 +67,7 @@ class Bday(commands.Cog):
         self.conn.commit()
 
     @bday.group(aliases=["tz"])
-    async def timezone(self, ctx, timezone):
+    async def timezone(self, ctx, *, timezone):
         """
         Save your timezone for the birthday command
         Use the tzsearch command to find your timezone
