@@ -117,24 +117,27 @@ class Users(commands.Cog):
         else:
             raise error
 
-    @commands.command(aliases=["top", "top10"])
-    async def leaderboard(self, ctx):
+    ''''@commands.command(aliases=["top", "top10"])
+    async def OLDBOARD(self, ctx):
         """
         Display the top 10 users based on server activity
         """
         author = ctx.author.id
         query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC LIMIT 10")
+        query.
         fetch = query.fetchall()
         output = "```md\n"
         name = ctx.guild.name
         output += name + "\n"
         output += "=" * len(name) + "\n\n"
+
         for i in range(len(fetch)):
             current = fetch[i]
             user = ctx.guild.get_member(current[0])
             if user:
                 output += f"{i + 1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
             else:
+                # here is where we would get += 1
                 output += f"{i + 1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
 
         query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
@@ -152,6 +155,50 @@ class Users(commands.Cog):
 
         output += "\n```"
 
+        await ctx.send(output)'''
+
+    @commands.command(aliases=["top", "top10"])
+    async def leaderboard(self, ctx):
+        """
+        Display the top 10 users based on server activity
+        """
+        author = ctx.author.id
+        query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
+        output = "```md\n"
+        name = ctx.guild.name
+        output += name + "\n"
+        output += "=" * len(name) + "\n\n"
+
+        user_ids = [x.id for x in ctx.guild.members]
+        in_serv = []
+        for i in query:
+            if i[0] in user_ids:
+                in_serv.append(i)
+
+        top = in_serv[:10]
+
+        for i in range(len(top)):
+            current = top[i]
+            user = ctx.guild.get_member(current[0])
+            if user:
+                output += f"{i + 1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
+            else:
+                # here is where we would get += 1
+                output += f"{i + 1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
+
+        index = None
+        for i in range(len(in_serv)):
+            if in_serv[i][0] == author:
+                index = i + 1
+                break
+        if index:
+            output += "\n\nYour Position:"
+            output += f"\n{index}. You < Level {in_serv[index - 1][2]} {in_serv[index - 1][1]} xp >"
+        else:
+            output += "\n\nYou don't have a position on the leaderbord yet"
+
+        output += "\n```"
+
         await ctx.send(output)
 
     @commands.command(aliases=["pos", "me"])
@@ -164,6 +211,14 @@ class Users(commands.Cog):
 
         query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC")
         query = query.fetchall()
+
+        user_ids = [x.id for x in ctx.guild.members]  # change "query" to contain users in the server
+        in_serv = []
+        for i in query:
+            if i[0] in user_ids:
+                in_serv.append(i)
+
+        query = in_serv
 
         # get position of user
         index = None
