@@ -249,8 +249,10 @@ class Users(commands.Cog):
             current = cropped[i]
             user = ctx.guild.get_member(current[0])
             if user:
-                if user.id == target.id:
+                if user.id == target.id and ctx.author.id == target.id:
                     output += f"{i + 1 + start}. YOU < Level {current[2]} {current[1]} xp >\n"
+                elif user.id == target.id:
+                    output += f"{i + 1 + start}. {target.display_name.upper()} < Level {current[2]} {current[1]} xp >\n"
                 else:
                     output += f"{i + 1 + start}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
             else:
