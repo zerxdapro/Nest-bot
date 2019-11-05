@@ -5,6 +5,7 @@ import sqlite3 as sql
 import datetime as dt
 import random
 from copy import deepcopy
+from math import ceil
 
 blacklist = [624785558102605824, 627985907013910538]
 
@@ -99,6 +100,16 @@ class Users(commands.Cog):
 
         query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
         query = query.fetchall()
+
+        user_ids = [x.id for x in ctx.guild.members]  # change "query" to contain users in the server
+        in_serv = []
+        for i in query:
+            if i[0] in user_ids:
+                in_serv.append(i)
+
+        query = in_serv
+
+        # get position of user
         index = None
         for i in range(len(query)):
             if query[i][0] == member.id:
@@ -107,6 +118,8 @@ class Users(commands.Cog):
 
         members = [x for x in ctx.guild.members if not x.bot]
         embed.add_field(name="Position on server leaderboard", value=f"{index}/{len(members)}")
+        percentile = str(ceil(index/len(members)*100)) + "%"
+        embed.add_field(name="Activity Percentile", value=percentile)
 
         await ctx.send(embed=embed)
 
