@@ -68,6 +68,7 @@ class Logging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
+        return
         if user.bot:
             return
         server = self.bot.get_guild(globe.serv_id)
