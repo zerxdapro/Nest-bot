@@ -4,6 +4,7 @@ import discord
 import re
 from helpers import globe, image_handler
 import importlib
+import cogs.audit as audit
 
 updown = [637397393771331596]
 
@@ -144,7 +145,7 @@ class Basic(commands.Cog):
         await cnl.send(str(member.mention), file=discord.File("image.png"))
 
     @commands.command(aliases=["announce"])
-    @commands.check(globe.check_mod)
+    @commands.is_owner()
     async def say(self, ctx, channel: discord.TextChannel, *, message):
         """
         Send a message with the bot in that channel
