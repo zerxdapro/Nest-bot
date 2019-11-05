@@ -4,7 +4,6 @@ import discord
 import re
 from helpers import globe, image_handler
 import importlib
-import cogs.audit as audit
 
 updown = [637397393771331596]
 
