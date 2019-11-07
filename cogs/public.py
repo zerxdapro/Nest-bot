@@ -54,7 +54,7 @@ class Public(commands.Cog):
         """
         if not member:
             member = ctx.author
-        embed = discord.Embed(title=member.display_name, color=member.colour)
+        embed = discord.Embed(title=member.display_name, color=member.colour, url=str(member.avatar_url))
         if str(embed.colour) == "#000000":
             embed.colour = 0xffffff
         embed.set_image(url=member.avatar_url)
