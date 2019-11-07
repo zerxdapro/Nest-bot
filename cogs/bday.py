@@ -17,7 +17,7 @@ class Bday(commands.Cog):
         self.conn = sql.connect("data/bday.db")
         self.c = self.conn.cursor()
 
-    @commands.group()
+    @commands.group(aliases=["bdays"])
     async def bday(self, ctx):
         """
         Tell the bot your birthday and party!
@@ -239,6 +239,46 @@ class Bday(commands.Cog):
             await ctx.send(f"{globe.errorx} Your command is missing an argument, consult the help command")
         else:
             raise error
+
+    @bday.command(aliases=["next", "soon", "future", "coming"])
+    async def upcoming(self, ctx):
+        """
+        Shows the next 10 birthdays
+        """
+        fetch = self.c.execute("SELECT * FROM bdays ORDER BY Datetime ASC")  # get all rows sorted by date
+
+        past = []
+        future = []
+        members = [x.id for x in ctx.guild.members]
+        for i in list(fetch):  # get all rows in list
+            if i[1] in members:
+                if i[3]:
+                    tz = pytz.timezone(i[3])  # set timezone if set by user
+                else:
+                    tz = pytz.utc  # make timezone UTC
+
+                date = tz.localize(dt.datetime.strptime(i[2], "%Y-%m-%dT%H:%M:%S"))  # get bday as tz aware
+                current = dt.datetime.now(tz).replace(year=1900)  # get now as tz aware
+                if current.date() > date.date():  # if the date is in the past
+                    # years should be the same btw
+                    past.append(i)
+                else:
+                    future.append(i)
+
+        bdays = future + past
+        bdays = bdays[:10]
+        output = ""
+
+        for i in bdays:
+            date = dt.datetime.strptime(i[2], "%Y-%m-%dT%H:%M:%S")
+            day = ord(date.day)
+            month = date.strftime("%b")
+            user = ctx.guild.get_member(i[1])
+            output += f"{month} {day}\t{user.display_name}\n"
+
+        output = f"**Upcoming birthdays in {ctx.guild.name}:**\n{output}"
+
+        await ctx.send(output)
 
 
 def setup(bot):
