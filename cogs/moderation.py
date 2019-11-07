@@ -336,6 +336,9 @@ class Moderation(commands.Cog):
         """
         Add a warning to the database for that user. The user will also be DMed the reason
         """
+        if member.id == ctx.author.id:
+            await ctx.send(f"{globe.errorx} You can't warn yourself")
+            return
         with open('data/warnings.csv', 'a') as fd:
             writer = csv.writer(fd)
             # Mod name, Mod ID, User name, User ID, Reason, Time
@@ -388,6 +391,8 @@ class Moderation(commands.Cog):
             await ctx.send(f"{globe.errorx} I can't find that user")
         elif isinstance(error, commands.CheckFailure):
             pass
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(f"{globe.errorx} A command argument is missing, consult the help command")
         else:
             raise error
 
