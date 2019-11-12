@@ -408,7 +408,7 @@ class Moderation(commands.Cog):
 
         # unfortunetely this regex is dummy thicc but i think its as tiny as i can get it :/
         inv = r"\b(https?://)?(www\.)?(discord\.gg|discordapp\.com/invite)/([a-zA-Z0-9]{5,7})\b"
-        blacklist = r"\b(fag(got)?s?|niggers?|retard(ed|s)?)\b"
+        blacklist = r"\b(fag(got)?s?|niggers?|nibbas?|retard(ed|s)?)\b"
 
         if re.search(blacklist, msg) and not ctx.author.bot:
             await ctx.delete()
@@ -420,7 +420,35 @@ class Moderation(commands.Cog):
             embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
             await channel.send(embed=embed)
 
-        elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8
+        elif re.search(r"\bgyps(y|ie)s?\b", msg) and not ctx.author.bot:
+            await ctx.delete()
+            server = self.bot.get_guild(serv_id)
+            channel = server.get_channel(cmd_id)
+            title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
+            embed = discord.Embed(description=title + msg, colour=0xFF0000)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
+            await channel.send(embed=embed)
+
+            msg = """Just a heads up, under rule 3, the term "gypsy" and its variations are banned. 
+For more info, see https://gypsyappropriations.blogspot.com/2010/04/problem-with-word-gypsy.html"""
+            await ctx.author.send(msg)
+
+        elif re.search(r"\beskimos?\b", msg) and not ctx.author.bot:
+            await ctx.delete()
+            server = self.bot.get_guild(serv_id)
+            channel = server.get_channel(cmd_id)
+            title = f"**Autodeleted message by {ctx.author.mention} ({ctx.author.id}) in {ctx.channel.mention}**\n"
+            embed = discord.Embed(description=title + msg, colour=0xFF0000)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+            embed.set_footer(text=ctx.author.created_at.strftime("%-I:%M%p, %-d %b %Y"))
+            await channel.send(embed=embed)
+
+            msg = """Just a heads up, under rule 3, the term "eskimo" and its variations are banned. 
+That word is used as a derogitory term for inuit people and thus is not allowed"""
+            await ctx.author.send(msg)
+
+        elif re.search(inv, msg) and not check_mod(ctx):  # enforce rule 8 | discord advertising
             search = re.search(inv, ctx.content, re.IGNORECASE)
             invite = search.group(0)
             try:
