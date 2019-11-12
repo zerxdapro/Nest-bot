@@ -56,7 +56,7 @@ class Ticket(commands.Cog):
         else:
             raise error
 
-    @ticket.group(aliases=["add", "open"])
+    @ticket.group(aliases=["add", "open", "new", "start"])
     async def create(self, ctx, *, message):
         """
         Create a new ticket
