@@ -7,6 +7,7 @@ import re
 import requests
 from PIL import Image, ImageFont, ImageDraw
 from helpers.image_handler import mask_circle_transparent
+from bs4 import BeautifulSoup
 
 
 class Public(commands.Cog):
@@ -85,7 +86,6 @@ class Public(commands.Cog):
 
         await ctx.send(embed=embed)
 
-    """
     # i think discord fixed this but im proud of the code so i wont delete
     @commands.command(aliases=["youtube"])
     async def yt(self, ctx, url):
@@ -121,7 +121,6 @@ class Public(commands.Cog):
         embed.set_thumbnail(url=f"https://img.youtube.com/vi/{id}/hqdefault.jpg")
 
         await ctx.send(embed=embed)
-    """
 
     @commands.command(aliases=["timezone", "tz", "tzs", "searchtz"])
     async def tzsearch(self, ctx, search):
