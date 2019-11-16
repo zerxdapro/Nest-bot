@@ -49,47 +49,57 @@ class Users(commands.Cog):
         user = ctx.author
         id = user.id
 
-        search = self.c.execute("SELECT * FROM users WHERE ID=?", (id,))
-        fetch = deepcopy(search.fetchone())
-        if fetch is None:
-            time = '2019-01-04T16:41:24.647172'
-            self.c.execute("INSERT INTO users (Name,ID,Level,XP,xp_time) VALUES (?,?,?,?,?)",
-                           (user.display_name, id, 1, 0, time))
+        fetch = self.conn.execute("SELECT Name,ID,Level,XP,xp_time,month_xp FROM users WHERE ID=?", (id,))
+        fetch = deepcopy(fetch.fetchone())
+        if not fetch:  # no user entry
+            data = (user.display_name, id, 1, 0, '2019-01-04T16:41:24.647172', 0)  # template data
+            self.conn.execute("INSERT INTO users (Name,ID,Level,XP,xp_time,month_xp) VALUES (?,?,?,?,?,?)")  # save
             self.conn.commit()
-            fetch = (user.display_name, id, 1, 0, time)
+            fetch = data
 
-        search = list(fetch)
-        if dt.datetime.strptime(search[4], "%Y-%m-%dT%H:%M:%S.%f") + dt.timedelta(minutes=2) <= dt.datetime.now():
-            # add xp and stuff
-            search[3] += random.randint(15, 25)
-            if search[3] >= level_to_xp(search[2]):
-                search[3] -= level_to_xp(search[2])
-                search[2] += 1
+        fetch = list(fetch)
+        now = dt.datetime.now()
+        last_xp = dt.datetime.strptime(fetch[4], "%Y-%m-%dT%H:%M:%S.%f")
+
+        if last_xp.month + 1 == now.month:
+            print("New month, resetting")
+            # a month's difference, move month xp to global xp and reset month xp
+            self.conn.execute("""UPDATE users SET month_xp= 0""")
+            self.conn.execute("""UPDATE users SET xp_time=?""", (now.isoformat(), ))
+            self.conn.commit()
+            fetch[5] = 0
+
+        if now >= last_xp + dt.timedelta(minutes=2):  # if its been 2 min since last got xp
+            rand_xp = random.randint(15, 25)
+            fetch[5] += rand_xp
+            fetch[3] += rand_xp
+
+            if fetch[3] >= level_to_xp(fetch[2]):  # if enough xp to level up
+                fetch[3] -= level_to_xp(fetch[2])
+                fetch[2] += 1
 
                 server = self.bot.get_guild(globe.serv_id)
                 bot_2 = server.get_channel(globe.bot_2_id)
 
-                embed = discord.Embed(title=f"You've reached level {search[2]}!", color=0x3ac797)
+                embed = discord.Embed(title=f"You've reached level {fetch[2]}!", color=0x3ac797)
                 embed.set_author(name=user.display_name, icon_url=user.avatar_url)
-
-                #   if random.randint(0, 5):
-                #       embed.set_footer(text="Earn more xp to level up by participating in chat")
 
                 await bot_2.send(user.mention, embed=embed)
 
-            search = (search[2], search[3], dt.datetime.now().isoformat(), search[1])
-            self.c.execute("UPDATE users SET Level=?, XP=?, xp_time=? WHERE ID=?", search)
+            data = (fetch[2], fetch[3], now.isoformat(), fetch[5], id)
+            self.conn.execute("UPDATE users SET Level=?, XP=?, xp_time=?, month_xp=? WHERE ID=?", data)
             self.conn.commit()
 
     @commands.command(aliases=["xp"])
     async def level(self, ctx, member: discord.Member = None):
         """
-        Display your level, position and xp on the server
+        Shows you your xp and levels
+        If a user is specified, it will show their xp/levels
         """
         if not member:
             member = ctx.author
 
-        search = self.c.execute("SELECT XP, Level FROM users WHERE ID=?", (member.id,))
+        search = self.c.execute("SELECT XP, Level, month_xp FROM users WHERE ID=?", (member.id,))
         fetch = deepcopy(search.fetchone())
         if not fetch:
             await ctx.send("That user has no xp")
@@ -97,33 +107,12 @@ class Users(commands.Cog):
         embed = discord.Embed(color=member.color)
         if str(embed.colour) == "#000000":
             embed.colour = 0xffffff
+
         embed.set_author(name=member.display_name, icon_url=member.avatar_url)
         embed.add_field(name="Level", value=fetch[1])
         bar = make_bar(fetch[0], level_to_xp(fetch[1]), 15)
-        embed.add_field(name="XP", value=bar + f" {fetch[0]}/{level_to_xp(fetch[1])}")
-
-        query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
-        query = query.fetchall()
-
-        user_ids = [x.id for x in ctx.guild.members]  # change "query" to contain users in the server
-        in_serv = []
-        for i in query:
-            if i[0] in user_ids:
-                in_serv.append(i)
-
-        query = in_serv
-
-        # get position of user
-        index = None
-        for i in range(len(query)):
-            if query[i][0] == member.id:
-                index = i + 1
-                break
-
-        members = [x for x in ctx.guild.members if not x.bot]
-        embed.add_field(name="Position on server leaderboard", value=f"{index}/{len(members)}")
-        percentile = str(ceil(index/len(members)*100)) + "%"
-        embed.add_field(name="Activity Percentile", value=percentile)
+        embed.add_field(name="Total XP", value=bar + f" {fetch[0]}/{level_to_xp(fetch[1])}")
+        embed.add_field(name="XP this month", value=fetch[2])
 
         await ctx.send(embed=embed)
 
@@ -134,99 +123,103 @@ class Users(commands.Cog):
         else:
             raise error
 
-    ''''@commands.command(aliases=["top", "top10"])
-    async def OLDBOARD(self, ctx):
-        """
-        Display the top 10 users based on server activity
-        """
-        author = ctx.author.id
-        query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC LIMIT 10")
-        query.
-        fetch = query.fetchall()
-        output = "```md\n"
-        name = ctx.guild.name
-        output += name + "\n"
-        output += "=" * len(name) + "\n\n"
-
-        for i in range(len(fetch)):
-            current = fetch[i]
-            user = ctx.guild.get_member(current[0])
-            if user:
-                output += f"{i + 1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
-            else:
-                # here is where we would get += 1
-                output += f"{i + 1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
-
-        query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
-        query = query.fetchall()
-        index = None
-        for i in range(len(query)):
-            if query[i][0] == author:
-                index = i + 1
-                break
-        if index:
-            output += "\n\nYour Position:"
-            output += f"\n{index}. You < Level {query[index - 1][2]} {query[index - 1][1]} xp >"
-        else:
-            output += "\n\nYou don't have a position on the leaderbord yet"
-
-        output += "\n```"
-
-        await ctx.send(output)'''
-
-    @commands.command(aliases=["top", "top10"])
+    @commands.command(aliases=["top", "top10", "topmonth"])
     async def leaderboard(self, ctx):
         """
-        Display the top 10 users based on server activity
+        Shows the top 10 users of that month
         """
-        author = ctx.author.id
-        query = self.c.execute("SELECT ID, XP, Level FROM users ORDER BY Level DESC, XP DESC")
-        output = "```md\n"
-        name = ctx.guild.name
-        output += name + "\n"
-        output += "=" * len(name) + "\n\n"
+        guild = self.bot.get_guild(globe.serv_id)
+        query = self.c.execute("SELECT ID, month_xp FROM users ORDER BY month_xp DESC")
+        # gets get id, month's xp and sort by xp from that month
 
-        user_ids = [x.id for x in ctx.guild.members]
-        in_serv = []
+        query = list(deepcopy(list(query)))  # convert to nice list and
+
+        if not query:  # shouldnt happen
+            await ctx.send("Something went wrong uh oh. Tell quantum")
+            return
+
+        guild_members = [x.id for x in guild.members]
+        in_guild = []
+
         for i in query:
-            if i[0] in user_ids:
-                in_serv.append(i)
+            if i[0] in guild_members:
+                in_guild.append(i)
+        tops = in_guild[:10]
 
-        top = in_serv[:10]
+        output = "```md\n"
+        name = guild.name
+        output += name + "\n" + len(name) * "=" + "\n\n"
 
-        for i in range(len(top)):
-            current = top[i]
-            user = ctx.guild.get_member(current[0])
-            if user:
-                output += f"{i + 1}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
-            else:
-                # here is where we would get += 1
-                output += f"{i + 1}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
+        for i in range(len(tops)):
+            user = tops[i]
+            name = guild.get_member(user[0]).name
+            output += f"{i + 1}. {name} < {user[1]} xp >\n"
 
-        index = None
-        for i in range(len(in_serv)):
-            if in_serv[i][0] == author:
-                index = i + 1
+        pos = None
+        for i in range(len(in_guild)):
+            if in_guild[i][0] == ctx.author.id:
+                pos = i + 1
                 break
-        if index:
-            output += "\n\nYour Position:"
-            output += f"\n{index}. You < Level {in_serv[index - 1][2]} {in_serv[index - 1][1]} xp >"
-        else:
-            output += "\n\nYou don't have a position on the leaderbord yet"
+
+        if pos:
+            output += f"\n\n\nYour Position:\n{pos}. {ctx.author.display_name} < {in_guild[pos][1]} xp >"
 
         output += "\n```"
-
         await ctx.send(output)
 
-    @commands.command(aliases=["pos", "me"])
+    @commands.command(aliases=["toptotal"])
+    async def topall(self, ctx):
+        """
+        Shows the top 10 users of all time
+        """
+        guild = self.bot.get_guild(globe.serv_id)
+        query = self.c.execute("SELECT ID, XP FROM users ORDER BY XP DESC")
+        # gets get id, month's xp and sort by xp from that month
+
+        query = list(deepcopy(list(query)))  # convert to nice list and
+
+        if not query:  # shouldnt happen
+            await ctx.send("Something went wrong uh oh. Tell quantum")
+            return
+
+        guild_members = [x.id for x in guild.members]
+        in_guild = []
+
+        for i in query:
+            if i[0] in guild_members:
+                in_guild.append(i)
+        tops = in_guild[:10]
+
+        output = "```md\n"
+        name = guild.name
+        output += name + "\n" + len(name) * "=" + "\n\n"
+
+        for i in range(len(tops)):
+            user = tops[i]
+            name = guild.get_member(user[0]).name
+            output += f"{i + 1}. {name} < {user[1]} xp >\n"
+
+        pos = None
+        for i in range(len(in_guild)):
+            if in_guild[i][0] == ctx.author.id:
+                pos = i + 1
+                break
+
+        if pos:
+            output += f"\n\n\nYour Position:\n{pos}. {ctx.author.display_name} < {in_guild[pos][1]} xp >"
+
+        output += "\n```"
+        await ctx.send(output)
+
+    @commands.command(aliases=["pos", "me", "posmonth"])
     async def position(self, ctx, target: discord.Member = None):
         """
-        Display a version of the leaderboard but showing the people directly above and below you
+        Shows the montly leaderboard centered around either you or the specified user
         """
         if not target:
             target = ctx.author
 
-        query = self.c.execute("SELECT ID, XP, Level, Name FROM users ORDER BY Level DESC, XP DESC")
+        query = self.c.execute("SELECT ID, month_xp FROM users ORDER BY month_xp DESC")
         query = query.fetchall()
 
         user_ids = [x.id for x in ctx.guild.members]  # change "query" to contain users in the server
@@ -254,7 +247,7 @@ class Users(commands.Cog):
             start = 0
             end = 10
         if end >= len(query):
-            end = len(query)-1
+            end = len(query) - 1
 
         cropped = query[start:end]
 
@@ -266,41 +259,73 @@ class Users(commands.Cog):
             current = cropped[i]
             user = ctx.guild.get_member(current[0])
             if user:
-                if user.id == target.id and ctx.author.id == target.id:
-                    output += f"{i + 1 + start}. YOU < Level {current[2]} {current[1]} xp >\n"
-                elif user.id == target.id:
-                    output += f"{i + 1 + start}. {target.display_name.upper()} < Level {current[2]} {current[1]} xp >\n"
+                if user.id == target.id and ctx.author.id == target.id:  # if target is author and this index is them
+                    output += f"{i + 1 + start}. YOU < Level {current[1]} xp >\n"
+                elif user.id == target.id:  # if this is the target
+                    output += f"{i + 1 + start}. {target.display_name.upper()} < Level {current[1]} xp >\n"
                 else:
-                    output += f"{i + 1 + start}. {user.display_name} < Level {current[2]} {current[1]} xp >\n"
-            else:
-                output += f"{i + 1 + start}. {current[3]} (User left server)  < Level {current[2]} {current[1]} xp >\n"
+                    output += f"{i + 1 + start}. {user.display_name} < Level {current[1]} xp >\n"
         output += "```"
 
         await ctx.send(output)
 
     @commands.command()
-    @commands.is_owner()
-    async def refreshlevels(self, ctx):
+    async def posall(self, ctx, target: discord.Member = None):
         """
-        Goes through all the users and updates their nicknames
+        Shows a leaderboard centered around either you or the specified user, for all time
         """
-        server = self.bot.get_guild(globe.serv_id)
+        if not target:
+            target = ctx.author
 
-        query = self.c.execute("SELECT * FROM users")
-        all = query.fetchall()
+        query = self.c.execute("SELECT ID, XP FROM users ORDER BY XP DESC")
+        query = query.fetchall()
 
-        all = [x for x in map(list, all)]
+        user_ids = [x.id for x in ctx.guild.members]  # change "query" to contain users in the server
+        in_serv = []
+        for i in query:
+            if i[0] in user_ids:
+                in_serv.append(i)
 
-        for i in all:
-            member = server.get_member(i[1])
-            if member:
-                i[0] = member.display_name
+        query = in_serv
 
-        for i in all:
-            self.c.execute("UPDATE users SET Name=? WHERE ID=?", (i[0], i[1]))
-        self.conn.commit()
+        # get position of user
+        index = None
+        for i in range(len(query)):
+            if query[i][0] == target.id:
+                index = i + 1
+                break
 
-        await ctx.send("✅")
+        # get range to list
+        index -= 1  # indexes start at 0 ammirite
+        start = index - 5
+        end = index + 4
+
+        # crop range to size of array
+        if start < 0:
+            start = 0
+            end = 10
+        if end >= len(query):
+            end = len(query) - 1
+
+        cropped = query[start:end]
+
+        output = "```md\n"
+        name = ctx.guild.name
+        output += name + "\n"
+        output += "=" * len(name) + "\n\n"
+        for i in range(len(cropped)):
+            current = cropped[i]
+            user = ctx.guild.get_member(current[0])
+            if user:
+                if user.id == target.id and ctx.author.id == target.id:  # if target is author and this index is them
+                    output += f"{i + 1 + start}. YOU < Level {current[1]} xp >\n"
+                elif user.id == target.id:  # if this is the target
+                    output += f"{i + 1 + start}. {target.display_name.upper()} < Level {current[1]} xp >\n"
+                else:
+                    output += f"{i + 1 + start}. {user.display_name} < Level {current[1]} xp >\n"
+        output += "```"
+
+        await ctx.send(output)
 
 
 def setup(bot):
